@@ -1,0 +1,16 @@
+{
+  "name": "widget-trial",
+  "version": "1.0.0",
+  "description": "Embeddable chat widget with Cloudflare Worker backend",
+  "main": "widget.js",
+  "scripts": {
+    "start": "wrangler dev worker.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

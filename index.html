@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Widget Demo</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background-color: #f0f2f5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .content {
+        text-align: center;
+        padding: 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+      }
+      h1 {
+        color: #333;
+      }
+      p {
+        color: #666;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content">
+      <h1>Welcome to the Widget Demo</h1>
+      <p>This page demonstrates the embeddable chat widget.</p>
+      <p>Look for the blue bubble in the bottom right corner!</p>
+    </div>
+
+    <div id="cr-widget"></div>
+
+    <script src="./widget.js"></script>
+
+    <script>
+      window.addEventListener("load", () => {
+        CRWidget.init({
+          apiUrl: "http://localhost:8787/api/widget",
+        });
+      });
+    </script>
+  </body>
+</html>
