@@ -315,7 +315,7 @@
           <div class="messages" role="log" aria-live="polite"></div>
           <div class="input-area">
             <input type="text" placeholder="Type a message..." aria-label="Type a message" />
-            <button class="send-btn" aria-label="Send message">${ICONS.send}</button>
+            <button class="send-btn" aria-label="Send message" disabled>${ICONS.send}</button>
           </div>
         </div>
         <div class="bubble" title="Open chat">${ICONS.chat}</div>
@@ -355,6 +355,12 @@
       this.elements.sendBtn.addEventListener("click", () => this._onSend());
       this.elements.input.addEventListener("keypress", (e) => {
         if (e.key === "Enter") this._onSend();
+      });
+
+      // Enable/disable send button based on input
+      this.elements.input.addEventListener("input", () => {
+        const hasText = this.elements.input.value.trim().length > 0;
+        this.elements.sendBtn.disabled = !hasText;
       });
 
       // scroll behavior: detect manual scroll to avoid auto-scroll when user is reading history
