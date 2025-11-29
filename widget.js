@@ -1,6 +1,31 @@
 (function () {
   /***** Styles *****/
   const STYLES = `
+  /* --- Modern minimal scrollbar inside widget --- */
+   .messages::-webkit-scrollbar {
+       width: 6px;
+   }
+
+   .messages::-webkit-scrollbar-track {
+       background: transparent;
+   }
+
+   .messages::-webkit-scrollbar-thumb {
+       background: rgba(156, 163, 175, 0.45);
+       border-radius: 20px;
+   }
+
+   :host(.dark) .messages::-webkit-scrollbar-thumb {
+       background: rgba(255, 255, 255, 0.32);
+   }
+
+   .messages::-webkit-scrollbar-thumb:hover {
+       background: rgba(156, 163, 175, 0.7);
+   }
+
+   :host(.dark) .messages::-webkit-scrollbar-thumb:hover {
+       background: rgba(255, 255, 255, 0.45);
+    }
     :host { all: initial; }
     :host, * { box-sizing: border-box; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
     :host {
@@ -64,8 +89,7 @@
 
     .chat-window {
       width: 100%;
-      height: 500px;
-      max-height: 520px;
+      height: 520px;
       max-height: 520px;
       background: var(--bg-window);
       border: 1px solid var(--border);
@@ -263,7 +287,6 @@
       this._attachListeners();
 
       // Show initial greeting once per session
-      // Show initial greeting once per session
       if (!localStorage.getItem(`cr_widget_greeted_v2_${this.sessionId}`)) {
         const greeting = "Hello! How can I help you?";
         this._showBotMessage(greeting, { persist: true, animated: true });
@@ -442,6 +465,7 @@
         });
         this._showToast("Network error. Retry available.");
       } finally {
+        // final cleanup (safe to call even if already removed earlier)
         this._showTyping(false);
         this.loading = false;
         this.elements.sendBtn.disabled = false;
@@ -503,9 +527,17 @@
 
       // progressive typewriter reveal to feel like AI typing
       if (opts.animated) {
+        // remove thinking loader immediately once we start the progressive reveal
+        // so the dots stop and the real typing bubble appears.
+        this._showTyping(false);
+
         const span = content.querySelector(".bot-text");
-        await this._typeWrite(span, text);
+        // faster speeds: short ~10ms, long ~8ms
+        const speed = text && text.length > 200 ? 8 : 10;
+        await this._typeWrite(span, text, speed);
       } else {
+        // clear loader as well for non-animated messages
+        this._showTyping(false);
         content.querySelector(".bot-text").textContent = text;
       }
 
@@ -596,7 +628,7 @@
       setTimeout(() => t.classList.remove("show"), ms);
     }
 
-    _typeWrite(el, text, speed = 18) {
+    _typeWrite(el, text, speed = 10) {
       // returns a promise that resolves when done
       return new Promise((resolve) => {
         el.textContent = "";
