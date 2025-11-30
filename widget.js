@@ -232,6 +232,22 @@
       .wrapper { width: calc(100vw - 28px); right:14px; bottom:14px; }
       .chat-window { max-height: 70vh; }
     }
+
+    /* footer */
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 0 0 12px 0;
+    }
+    .footer a {
+      color: #4F46E5;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
   `;
 
   /***** Icons *****/
@@ -339,6 +355,9 @@
           <div class="input-area">
             <input type="text" placeholder="Type a message..." aria-label="Type a message" />
             <button class="send-btn" aria-label="Send message" disabled>${ICONS.send}</button>
+          </div>
+          <div class="footer">
+            Powered by <a href="https://cipherand-row-dashbaord.vercel.app/" target="_blank">Cipher & Row</a>
           </div>
         </div>
         <div class="bubble" title="Open chat">${ICONS.chat}</div>
