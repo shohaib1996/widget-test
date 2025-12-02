@@ -1,64 +1,34 @@
 (function () {
-  /***** Styles *****/
+  /* -------------------------
+     STYLES (single template literal)
+     ------------------------- */
   const STYLES = `
-  /* --- Modern minimal scrollbar inside widget --- */
-   .messages::-webkit-scrollbar {
-       width: 6px;
-   }
-
-   .messages::-webkit-scrollbar-track {
-       background: transparent;
-   }
-
-   .messages::-webkit-scrollbar-thumb {
-       background: rgba(156, 163, 175, 0.45);
-       border-radius: 20px;
-   }
-
-   :host(.dark) .messages::-webkit-scrollbar-thumb {
-       background: rgba(255, 255, 255, 0.32);
-   }
-
-   .messages::-webkit-scrollbar-thumb:hover {
-       background: rgba(156, 163, 175, 0.7);
-   }
-
-   :host(.dark) .messages::-webkit-scrollbar-thumb:hover {
-       background: rgba(255, 255, 255, 0.45);
+    .messages::-webkit-scrollbar { width: 6px; }
+    .messages::-webkit-scrollbar-track { background: transparent; }
+    .messages::-webkit-scrollbar-thumb {
+      background: rgba(156,163,175,0.45);
+      border-radius: 20px;
     }
+    .messages::-webkit-scrollbar-thumb:hover { background: rgba(156,163,175,0.7); }
+
     :host { all: initial; }
     :host, * { box-sizing: border-box; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
     :host {
-      --primary: #4F46E5;
-      --primary-600: #4338CA;
+      --primary: #8A06E6;
+      --primary-600: #7505C7;
       --bg-window: #ffffff;
-      --bg-header: linear-gradient(90deg, #4F46E5, #4338CA);
+      --bg-header: linear-gradient(90deg,#8A06E6,#7A05D0);
       --bg-messages: #F5F7FA;
       --bg-input: #FBFBFD;
       --text-main: #111827;
       --text-muted: #6B7280;
       --border: #E5E7EB;
-      --bubble-bot: #E8EBF1;
-      --bubble-user: #4F46E5;
+      --bubble-bot: #ffffff;
+      --bubble-user: #8A06E6;
       --bubble-user-text: #ffffff;
-      --bubble-bot-text: #111827;
       --shadow: 0 10px 25px rgba(2,6,23,0.08);
     }
-    :host(.dark) {
-      --bg-window: #1F2937;
-      --bg-header: linear-gradient(90deg, #3730A3, #312E81);
-      --bg-messages: #111827;
-      --bg-input: #1F2937;
-      --text-main: #F9FAFB;
-      --text-muted: #9CA3AF;
-      --border: #374151;
-      --bubble-bot: #374151;
-      --bubble-user: #4F46E5;
-      --bubble-user-text: #ffffff;
-      --bubble-bot-text: #F9FAFB;
-      --shadow: 0 10px 25px rgba(0,0,0,0.3);
-    }
-    :host, * { box-sizing: border-box; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+
     .wrapper {
       z-index: 9999;
       position: fixed;
@@ -73,19 +43,18 @@
       font-size: 14px;
     }
 
-    /* bubble button */
     .bubble {
       width: 60px;
       height: 60px;
-      background: #4F46E5;
+      background: var(--primary);
       border-radius: 50%;
       box-shadow: var(--shadow);
       display: grid;
       place-items: center;
       cursor: pointer;
-      transition: transform .12s ease;
+      transition: transform .12s ease, background .12s;
     }
-    .bubble:hover { transform: scale(1.05); background: #4338CA; }
+    .bubble:hover { transform: scale(1.05); background: var(--primary-600); }
 
     .chat-window {
       width: 100%;
@@ -93,9 +62,8 @@
       max-height: 520px;
       background: var(--bg-window);
       border: 1px solid var(--border);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-      border-radius: 14px;
       box-shadow: var(--shadow);
+      border-radius: 14px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -113,39 +81,59 @@
       justify-content:space-between;
       gap:12px;
       padding:12px 14px;
-      padding:12px 14px;
       background: var(--bg-header);
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
       color: #fff;
-      font-weight:600;
     }
-    .header .title {
-      font-size: 15px;
-      font-weight: 600;
-      color: white;
+    .header-left { display:flex; align-items:center; gap:12px; }
+    .title { font-size: 15px; font-weight: 600; color: white; display:flex; align-items:center; gap:8px; }
+
+    .header-icon {
+      width:36px;
+      height:36px;
+      border-radius: 36px;
+      background: rgba(255,255,255,0.18);
+      display:grid;
+      place-items:center;
+      flex-shrink:0;
     }
-    .close-btn, .theme-btn {
-      background: transparent; border:none; color: white;
-      cursor:pointer; opacity: 0.9; transition: opacity 0.2s;
-      display: flex; align-items: center; justify-content: center;
-      width: 32px; height: 32px; padding: 0; border-radius: 4px;
+    .header-icon-inner {
+      width:18px;
+      height:18px;
+      background:white;
+      transform: rotate(45deg);
+      border-radius:3px;
     }
-    .close-btn { font-size: 24px; line-height: 1; }
-    .theme-btn svg { display: block; margin-top: 5px; }
-    .close-btn:hover, .theme-btn:hover { opacity: 1; background: rgba(255,255,255,0.1); }
+
+    .status-dot {
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      background:#10B981;
+      box-shadow: 0 0 0 6px rgba(16,185,129,0.06);
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+        box-shadow: 0 0 0 8px rgba(16,185,129,0.15);
+      }
+    }
 
     .messages {
       flex: 1;
       padding: 12px;
       display:flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       overflow-y: auto;
       background: var(--bg-messages);
     }
 
-    /* message rows */
     .row { display:flex; gap:10px; align-items:flex-end; }
     .row.bot { justify-content:flex-start; }
     .row.user { justify-content:flex-end; }
@@ -153,113 +141,100 @@
     .avatar {
       width:34px; height:34px; border-radius:50%; flex:0 0 34px;
       display:grid; place-items:center; font-weight:700; color:white;
-      background: #E5E7EB; user-select:none;
+      user-select:none; font-size:12px;
     }
-    .avatar.bot { background: var(--bubble-bot); color: var(--bubble-bot-text); border: 1px solid var(--border); }
-    .avatar.user { background: var(--bubble-user); color: var(--bubble-user-text); border: 1px solid var(--primary-600); }
+    .avatar.bot { background: var(--primary); color: white; }
+    .avatar.user { background: var(--primary); color: white; }
 
-    .bubble-content {
-      max-width: 78%;
-      padding:10px 12px;
-      border-radius:12px;
-      line-height:1.45;
-      white-space:pre-wrap;
-      word-break:break-word;
-      box-shadow: 0 2px 6px rgba(2,6,23,0.04);
-    }
-    .bubble-content.bot {
-      background: var(--bubble-bot);
-      border: 1px solid var(--border);
-      color: var(--bubble-bot-text);
-      border-top-left-radius:2px;
-    }
-    .bubble-content.user {
-      background: var(--bubble-user);
-      color: var(--bubble-user-text);
-      border-top-right-radius:2px;
-      box-shadow: 0 2px 6px rgba(79,70,229,0.25);
+  .bubble-content {
+  max-width: 92%;
+  padding:12px 14px;
+  border-radius:12px;
+  line-height:1.45;
+  white-space:pre-wrap;
+  word-break:break-word;
+  box-shadow: 0 2px 6px rgba(2,6,23,0.04);
+  font-size: 14px;
+  color: var(--text-main);
+  background: var(--bubble-bot);
+  border: 1px solid var(--border);
+}
+    .bubble-content.bot { border-top-left-radius: 4px; }
+    
+.bubble-content.user {
+  max-width: 92%;
+  background: var(--bubble-user);
+  color: var(--bubble-user-text);
+  border: none;
+  border-top-right-radius: 4px;
+  box-shadow: 0 2px 6px rgba(138,6,230,0.18);
+}
+
+    .chip {
+      background: var(--primary);
+      color: white;
+      padding:8px 12px;
+      border-radius: 16px;
+      font-size: 13px;
+      box-shadow: 0 6px 14px rgba(138,6,230,0.12);
     }
 
-    .meta { font-size:11px; color:var(--muted); margin-top:6px; }
-
-    /* typing indicator */
-    .typing {
-      display:inline-flex;
-      gap:4px;
-      align-items:center;
-    }
-    .dot {
-      width:7px; height:7px; background:#9CA3AF; border-radius:50%;
-      opacity:0.9; transform:translateY(0);
-      animation: typing 1s infinite;
-    }
-    .dot:nth-child(1){ animation-delay:0s; }
-    .dot:nth-child(2){ animation-delay:.12s; }
-    .dot:nth-child(3){ animation-delay:.24s; }
+    .typing { display:inline-flex; gap:6px; align-items:center; }
+    .dot { width:7px; height:7px; background:#9CA3AF; border-radius:50%; opacity:0.9; transform:translateY(0); animation: typing 1s infinite; }
+    .dot:nth-child(1){ animation-delay:0s; } .dot:nth-child(2){ animation-delay:.12s; } .dot:nth-child(3){ animation-delay:.24s; }
     @keyframes typing { 0%{ transform:translateY(0); opacity:.3;} 50%{ transform:translateY(-6px); opacity:1;} 100%{ transform:translateY(0); opacity:.3;} }
 
-    /* input */
-    .input-area { display:flex; gap:8px; padding:12px; border-top: 1px solid var(--border);
-      background: var(--bg-input); align-items:center; }
-    .input-area input {
-      flex:1; padding:10px 12px; border-radius:999px; border:1px solid var(--border); outline:none; font-size:14px;
-      background: var(--bg-window); color: var(--text-main);
+    .input-area { display:flex; gap:8px; padding:8px 10px; background: transparent; align-items:center; position:relative; }
+    .input-pill { 
+      width:100%; 
+      background: #f3f4f6; 
+      border-radius: 999px; 
+      padding: 6px 16px; 
+      display:flex; 
+      align-items:center; 
+      gap:12px; 
+      box-shadow: 0 4px 14px rgba(2,6,23,0.04);
+      border: 2px solid transparent;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
-    .input-area input:focus {
-      border-color:#4F46E5;
-      box-shadow: 0 0 0 2px rgba(79,70,229,0.15);
+    .input-pill:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 4px 14px rgba(138,6,230,0.15);
     }
+    .input-pill input { border:0; outline:none; background: transparent; flex:1; font-size:15px; color: #374151; padding:0; min-height:20px; }
     .send-btn {
-      width:44px; height:44px; border-radius:50%; border:none; cursor:pointer;
-      background: #4F46E5; color:white; display:grid; place-items:center;
+      width:36px; height:36px; border-radius:12px; border:none; cursor:pointer;
+      background: var(--primary); color:white; display:grid; place-items:center;
+      box-shadow: 0 6px 18px rgba(138,6,230,0.18); transition: transform .12s ease, opacity .12s;
+      flex-shrink:0;
     }
-    .send-btn:disabled { opacity:.3; cursor:not-allowed; transform:none; }
+    .send-btn[disabled] { opacity: 0.38; cursor: not-allowed; transform:none; }
 
-    /* small toast */
-    .toast {
-      position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,0.8); color: #fff; padding:8px 10px; border-radius:8px;
-      font-size:12px; box-shadow: 0 6px 18px rgba(0,0,0,.12);
-      opacity:0; transform:translateY(8px); transition:opacity .18s, transform .18s;
-    }
+    .footer { text-align: center; font-size: 12px; color: var(--text-muted); padding: 10px 0 14px 0; }
+    .footer a { color: var(--primary); text-decoration:none; font-weight:500; }
+    .footer a:hover { text-decoration:underline; }
+
+    .toast { position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,0.8); color: #fff; padding:8px 10px; border-radius:8px; font-size:12px; box-shadow: 0 6px 18px rgba(0,0,0,.12); opacity:0; transform:translateY(8px); transition:opacity .18s, transform .18s; }
     .toast.show { opacity:1; transform:translateY(0); }
 
-    /* retry button inside message */
-    .message-error { color:#b91c1c; margin-top:8px; display:flex; gap:8px; align-items:center; }
-    .btn-retry { background:transparent; border:1px solid #e5e7eb; padding:6px 8px; border-radius:8px; cursor:pointer; font-size:13px; }
-
-    /* responsive small */
     @media (max-width:420px) {
       .wrapper { width: calc(100vw - 28px); right:14px; bottom:14px; }
       .chat-window { max-height: 70vh; }
     }
-
-    /* footer */
-    .footer {
-      text-align: center;
-      font-size: 12px;
-      color: var(--text-muted);
-      padding: 0 0 12px 0;
-    }
-    .footer a {
-      color: #4F46E5;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .footer a:hover {
-      text-decoration: underline;
-    }
   `;
 
-  /***** Icons *****/
+  /* -------------------------
+     ICONS
+     ------------------------- */
   const ICONS = {
-    chat: `<svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>`,
-    send: `<svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>`,
+    chat: '<svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>',
+    send: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>',
     close: "&times;",
-    moon: `<svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-3.03 0-5.5-2.47-5.5-5.5 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>`,
-    sun: `<svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm-1 16.95h2V19.5h-2v2.95zm-7.45-3.91l1.41 1.41 1.79-1.8-1.41-1.41-1.79 1.8z"/></svg>`,
   };
 
-  /***** Widget class *****/
+  /* -------------------------
+     WIDGET CLASS
+     ------------------------- */
   class CRWidget {
     constructor() {
       this.apiUrl = null;
@@ -271,7 +246,7 @@
       this.elements = {};
       this.isOpen = false;
       this.loading = false;
-      this.lastPayload = null; // for retry
+      this.lastPayload = null;
       this.messagesKey = null;
     }
 
@@ -291,7 +266,7 @@
       }
 
       this.sessionId = this._getOrCreateSession();
-      this.messagesKey = `cr_widget_messages_${this.sessionId}`;
+      this.messagesKey = "cr_widget_messages_" + this.sessionId;
 
       this.shadow = this.container.attachShadow({ mode: "open" });
       const style = document.createElement("style");
@@ -302,17 +277,10 @@
       this._loadMessagesFromStorage();
       this._attachListeners();
 
-      // Show initial greeting once per session
-      if (!localStorage.getItem(`cr_widget_greeted_v2_${this.sessionId}`)) {
+      if (!localStorage.getItem("cr_widget_greeted_v2_" + this.sessionId)) {
         const greeting = "Hello! How can I help you?";
         this._showBotMessage(greeting, { persist: true, animated: true });
-        localStorage.setItem(`cr_widget_greeted_v2_${this.sessionId}`, "1");
-      }
-
-      // Initialize Theme
-      const savedTheme = localStorage.getItem("cr_widget_theme");
-      if (savedTheme === "dark") {
-        this.toggleTheme(true);
+        localStorage.setItem("cr_widget_greeted_v2_" + this.sessionId, "1");
       }
     }
 
@@ -331,120 +299,125 @@
         return this._uuidv4();
       }
     }
+
     _uuidv4() {
-      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-        const r = (Math.random() * 16) | 0;
-        const v = c === "x" ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-      });
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+        /[xy]/g,
+        function (c) {
+          const r = (Math.random() * 16) | 0;
+          const v = c === "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        }
+      );
     }
 
     _renderShell() {
       const wrapper = document.createElement("div");
       wrapper.className = "wrapper";
-      wrapper.innerHTML = `
-        <div class="chat-window" role="region" aria-label="Chat window" tabindex="0">
-          <div class="header">
-            <div class="title"><strong>Ask us</strong><span style="font-weight:400; font-size:12px; opacity:.9"> — AI assistant</span></div>
-            <div style="display:flex; gap:8px; align-items:center">
-              <button class="theme-btn" aria-label="Toggle theme">${ICONS.moon}</button>
-              <button class="close-btn" aria-label="Close chat">${ICONS.close}</button>
-            </div>
-          </div>
-          <div class="messages" role="log" aria-live="polite"></div>
-          <div class="input-area">
-            <input type="text" placeholder="Type a message..." aria-label="Type a message" />
-            <button class="send-btn" aria-label="Send message" disabled>${ICONS.send}</button>
-          </div>
-          <div class="footer">
-            Powered by <a href="https://cipherand-row-dashbaord.vercel.app/" target="_blank">Cipher & Row</a>
-          </div>
-        </div>
-        <div class="bubble" title="Open chat">${ICONS.chat}</div>
-        <div class="toast" aria-hidden="true"></div>
-      `;
+
+      // Build inner HTML via concatenation to avoid accidental template literal interpolation
+      let inner = "";
+      inner +=
+        '<div class="chat-window" role="region" aria-label="Chat window" tabindex="0">';
+      inner += '  <div class="header">';
+      inner += '    <div class="header-left">';
+      inner +=
+        '      <div class="header-icon"><img src="images/Text.png" alt="Icon" style="width:24px; height:24px; object-fit:contain;" /></div>';
+      inner += '      <div class="title">Support Assistant</div>';
+      inner += "    </div>";
+      inner += '    <div style="display:flex; gap:10px; align-items:center;">';
+      inner += '      <div class="status-dot" title="Active"></div>';
+      inner += "    </div>";
+      inner += "  </div>";
+      inner += '  <div class="messages" role="log" aria-live="polite"></div>';
+
+      inner += '  <div class="input-area">';
+      inner += '    <div class="input-pill">';
+      inner +=
+        '      <input type="text" placeholder="Type your message..." aria-label="Type your message" />';
+      inner +=
+        '      <button class="send-btn" aria-label="Send message" disabled>' +
+        ICONS.send +
+        "</button>";
+      inner += "    </div>";
+      inner += "  </div>";
+
+      inner +=
+        '  <div class="footer">Powered by <a href="https://cipherand-row-dashbaord.vercel.app/" target="_blank">Cipher & Row</a></div>';
+      inner += "</div>";
+
+      inner += '<div class="bubble" title="Open chat">' + ICONS.chat + "</div>";
+      inner += '<div class="toast" aria-hidden="true"></div>';
+
+      wrapper.innerHTML = inner;
       this.shadow.appendChild(wrapper);
 
       this.elements = {
         wrapper,
         window: this.shadow.querySelector(".chat-window"),
         bubble: this.shadow.querySelector(".bubble"),
-        closeBtn: this.shadow.querySelector(".close-btn"),
-        themeBtn: this.shadow.querySelector(".theme-btn"),
         messages: this.shadow.querySelector(".messages"),
-        input: this.shadow.querySelector(".input-area input"),
-        sendBtn: this.shadow.querySelector(".send-btn"),
+        input: this.shadow.querySelector(".input-pill input"),
+        sendBtn: this.shadow.querySelector(".input-pill .send-btn"),
         toast: this.shadow.querySelector(".toast"),
       };
     }
 
     _attachListeners() {
-      // toggle
       const toggle = () => {
         this.isOpen = !this.isOpen;
         this.elements.window.classList.toggle("open", this.isOpen);
         if (this.isOpen) setTimeout(() => this.elements.input.focus(), 120);
       };
+
       this.elements.bubble.addEventListener("click", toggle);
-      this.elements.closeBtn.addEventListener("click", toggle);
 
-      // theme toggle
-      this.elements.themeBtn.addEventListener("click", () =>
-        this.toggleTheme()
-      );
-
-      // send
-      this.elements.sendBtn.addEventListener("click", () => this._onSend());
-      this.elements.input.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") this._onSend();
-      });
-
-      // Enable/disable send button based on input
       this.elements.input.addEventListener("input", () => {
         const hasText = this.elements.input.value.trim().length > 0;
-        this.elements.sendBtn.disabled = !hasText;
+        this.elements.sendBtn.disabled = !hasText || this.loading;
       });
 
-      // scroll behavior: detect manual scroll to avoid auto-scroll when user is reading history
-      let userScrolled = false;
+      this.elements.sendBtn.addEventListener("click", () => this._onSend());
+      this.elements.input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          this._onSend();
+        }
+      });
+
       this.elements.messages.addEventListener("scroll", () => {
         const el = this.elements.messages;
         const atBottom = el.scrollTop + el.clientHeight + 60 >= el.scrollHeight;
-        userScrolled = !atBottom;
       });
 
-      // keyboard accessibility: Esc closes
       this.shadow.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && this.isOpen) toggle();
+        if (e.key === "Escape" && this.isOpen) {
+          this.elements.window.classList.remove("open");
+          this.isOpen = false;
+        }
       });
     }
 
-    /***** message lifecycle *****/
     _onSend() {
       if (this.loading) return;
       const text = this.elements.input.value.trim();
       if (!text) return;
-      // show optimistic user message
+
       this._renderUserRow(text);
-      this._scrollToBottom(true); // Force scroll to bottom
-      const userMsgId = this._pushMessage({
-        role: "user",
-        text,
-        time: Date.now(),
-      });
+      this._scrollToBottom(true);
+      this._pushMessage({ role: "user", text, time: Date.now() });
       this.elements.input.value = "";
+      this.elements.sendBtn.disabled = true;
       this.elements.input.focus();
 
-      // build payload
       const payload = {
         client_id: this.clientId,
         bot_id: this.botId,
         session_id: this.sessionId,
         user_message: text,
       };
-      this.lastPayload = { payload, userMsgId };
+      this.lastPayload = { payload };
 
-      // call API
       this._callApiAndRender(payload);
     }
 
@@ -460,10 +433,9 @@
           body: JSON.stringify(payload),
         });
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) throw new Error("HTTP " + res.status);
 
         const data = await res.json();
-        // accept data.reply or data.messages[0].text
         const botText =
           (data &&
             (data.reply ||
@@ -472,11 +444,9 @@
                 data.messages[0].text))) ||
           "Sorry, I didn't get that.";
 
-        // create bot placeholder then progressively reveal
         await this._showBotMessage(botText, { animated: true, persist: true });
       } catch (err) {
         console.error("Widget network error:", err);
-        // show error message with Retry button
         this._showBotMessage("Oops — something went wrong. Please retry.", {
           animated: false,
           persist: true,
@@ -484,24 +454,21 @@
         });
         this._showToast("Network error. Retry available.");
       } finally {
-        // final cleanup (safe to call even if already removed earlier)
         this._showTyping(false);
         this.loading = false;
-        this.elements.sendBtn.disabled = false;
+        const hasText = this.elements.input.value.trim().length > 0;
+        this.elements.sendBtn.disabled = !hasText;
       }
     }
 
     _showTyping(show) {
-      // add/remove a typing bubble at end
       if (show) {
-        // create typing element only if not already present
         if (!this.shadow.querySelector(".typing-row")) {
           const row = document.createElement("div");
           row.className = "row bot typing-row";
-          row.innerHTML = `
-            <div class="avatar bot">AI</div>
-            <div class="bubble-content bot"><span class="typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
-          `;
+          row.innerHTML =
+            '<div class="avatar bot">AI</div>' +
+            '<div class="bubble-content bot"><span class="typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>';
           this.elements.messages.appendChild(row);
           this._maybeAutoScroll();
         }
@@ -515,59 +482,53 @@
       text,
       opts = { animated: true, persist: true, error: false }
     ) {
-      // create a message row with an inner span for progressive reveal
       const row = document.createElement("div");
       row.className = "row bot";
-      const avatar = `<div class="avatar bot">AI</div>`;
+
+      const avatarHtml = '<div class="avatar bot">AI</div>';
       const content = document.createElement("div");
       content.className = "bubble-content bot";
-      content.innerHTML = `<span class="bot-text"></span>`;
-      row.innerHTML = avatar;
+      content.innerHTML = '<span class="bot-text"></span>';
+
+      row.innerHTML = avatarHtml;
       row.appendChild(content);
 
-      // if error, append retry UI
       if (opts.error) {
         const errDiv = document.createElement("div");
         errDiv.className = "message-error";
-        errDiv.innerHTML = `<span style="color:#b91c1c">Failed to get reply</span> <button class="btn-retry">Retry</button>`;
+        errDiv.innerHTML =
+          '<span style="color:#b91c1c">Failed to get reply</span> <button class="btn-retry">Retry</button>';
         row.appendChild(errDiv);
-        // attach retry
-        errDiv.querySelector(".btn-retry").addEventListener("click", () => {
-          if (this.lastPayload && this.lastPayload.payload) {
-            this._callApiAndRender(this.lastPayload.payload);
-            // remove error row
-            row.remove();
-          }
-        });
+        const btn = errDiv.querySelector(".btn-retry");
+        if (btn) {
+          btn.addEventListener("click", () => {
+            if (this.lastPayload && this.lastPayload.payload) {
+              this._callApiAndRender(this.lastPayload.payload);
+              row.remove();
+            }
+          });
+        }
       }
 
       this.elements.messages.appendChild(row);
       this._maybeAutoScroll();
 
-      // progressive typewriter reveal to feel like AI typing
       if (opts.animated) {
-        // remove thinking loader immediately once we start the progressive reveal
-        // so the dots stop and the real typing bubble appears.
         this._showTyping(false);
-
         const span = content.querySelector(".bot-text");
-        // faster speeds: short ~10ms, long ~8ms
         const speed = text && text.length > 200 ? 8 : 10;
         await this._typeWrite(span, text, speed);
       } else {
-        // clear loader as well for non-animated messages
         this._showTyping(false);
-        content.querySelector(".bot-text").textContent = text;
+        const span = content.querySelector(".bot-text");
+        if (span) span.textContent = text;
       }
 
-      // persist message to storage
-      if (opts.persist) {
+      if (opts.persist)
         this._pushMessage({ role: "bot", text, time: Date.now() });
-      }
     }
 
     _pushMessage(msg) {
-      // push to DOM already done; persist into localStorage
       try {
         const raw = localStorage.getItem(this.messagesKey);
         const arr = raw ? JSON.parse(raw) : [];
@@ -588,7 +549,6 @@
           if (m.role === "user") this._renderUserRow(m.text);
           else this._renderBotRow(m.text);
         });
-        // scroll to bottom on load
         setTimeout(() => this._scrollToBottom(true), 40);
       } catch (e) {
         /* ignore */
@@ -598,26 +558,30 @@
     _renderUserRow(text) {
       const row = document.createElement("div");
       row.className = "row user";
-      row.innerHTML = `
-        <div class="bubble-content user">${this._escape(text)}</div>
-        <div class="avatar user">You</div>
-      `;
+      row.innerHTML =
+        '<div class="bubble-content user">' +
+        this._escape(text) +
+        "</div>" +
+        '<div class="avatar user">You</div>';
       this.elements.messages.appendChild(row);
+      this._maybeAutoScroll();
     }
 
     _renderBotRow(text) {
       const row = document.createElement("div");
       row.className = "row bot";
-      row.innerHTML = `
-        <div class="avatar bot">AI</div>
-        <div class="bubble-content bot">${this._escape(text)}</div>
-      `;
+      row.innerHTML =
+        '<div class="avatar bot">AI</div>' +
+        '<div class="bubble-content bot">' +
+        this._escape(text) +
+        "</div>";
       this.elements.messages.appendChild(row);
+      this._maybeAutoScroll();
     }
 
     _escape(s) {
       if (!s) return "";
-      return s
+      return String(s)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
@@ -625,19 +589,14 @@
 
     _maybeAutoScroll() {
       const el = this.elements.messages;
-      // if user has scrolled up intentionally, don't auto scroll
       const atBottom = el.scrollTop + el.clientHeight + 60 >= el.scrollHeight;
       if (atBottom) this._scrollToBottom();
     }
 
     _scrollToBottom(immediate = false) {
       const el = this.elements.messages;
-      if (immediate) {
-        el.scrollTop = el.scrollHeight;
-      } else {
-        // smooth behaviour
-        el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-      }
+      if (immediate) el.scrollTop = el.scrollHeight;
+      else el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
     }
 
     _showToast(msg, ms = 3000) {
@@ -648,8 +607,8 @@
     }
 
     _typeWrite(el, text, speed = 10) {
-      // returns a promise that resolves when done
       return new Promise((resolve) => {
+        if (!el) return resolve();
         el.textContent = "";
         let i = 0;
         const step = () => {
@@ -657,22 +616,11 @@
             el.textContent = text.slice(0, i);
             i++;
             this._maybeAutoScroll();
-            setTimeout(step, speed + Math.random() * 6); // small jitter
+            setTimeout(step, speed + Math.random() * 6);
           } else resolve();
         };
-        // small initial delay for realism
         setTimeout(step, 220 + Math.random() * 200);
       });
-    }
-
-    toggleTheme(forceDark) {
-      const isDark =
-        forceDark !== undefined
-          ? forceDark
-          : !this.shadow.host.classList.contains("dark");
-      this.shadow.host.classList.toggle("dark", isDark);
-      this.elements.themeBtn.innerHTML = isDark ? ICONS.sun : ICONS.moon;
-      localStorage.setItem("cr_widget_theme", isDark ? "dark" : "light");
     }
   }
 
