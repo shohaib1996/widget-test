@@ -179,10 +179,12 @@
       box-shadow: 0 6px 14px rgba(138,6,230,0.12);
     }
 
+    /* TYPING INDICATOR DISABLED - CSS commented out for now
     .typing { display:inline-flex; gap:6px; align-items:center; }
     .dot { width:7px; height:7px; background:#9CA3AF; border-radius:50%; opacity:0.9; transform:translateY(0); animation: typing 1s infinite; }
     .dot:nth-child(1){ animation-delay:0s; } .dot:nth-child(2){ animation-delay:.12s; } .dot:nth-child(3){ animation-delay:.24s; }
     @keyframes typing { 0%{ transform:translateY(0); opacity:.3;} 50%{ transform:translateY(-6px); opacity:1;} 100%{ transform:translateY(0); opacity:.3;} }
+    */
 
     .input-area { display:flex; gap:8px; padding:8px 10px; background: transparent; align-items:center; position:relative; }
     .input-pill { 
@@ -239,6 +241,7 @@
   class CRWidget {
     constructor() {
       this.apiUrl = null;
+      this.apiKey = null;
       this.clientId = null;
       this.botId = null;
       this.sessionId = null;
@@ -246,13 +249,14 @@
       this.shadow = null;
       this.elements = {};
       this.isOpen = false;
-      this.loading = false;
+      // this.loading = false; // Loading state commented out
       this.lastPayload = null;
-      this.messagesKey = null;
+      this.greeted = false;
     }
 
     init(config = {}) {
       this.apiUrl = config.apiUrl;
+      this.apiKey = config.apiKey || null;
       this.clientId = config.clientId || null;
       this.botId = config.botId || null;
       if (!this.apiUrl) {
@@ -267,7 +271,6 @@
       }
 
       this.sessionId = this._getOrCreateSession();
-      this.messagesKey = "cr_widget_messages_" + this.sessionId;
 
       this.shadow = this.container.attachShadow({ mode: "open" });
       const style = document.createElement("style");
@@ -275,13 +278,12 @@
       this.shadow.appendChild(style);
 
       this._renderShell();
-      this._loadMessagesFromStorage();
       this._attachListeners();
 
-      if (!localStorage.getItem("cr_widget_greeted_v2_" + this.sessionId)) {
+      if (!this.greeted) {
         const greeting = "Hello! How can I help you?";
-        this._showBotMessage(greeting, { persist: true, animated: true });
-        localStorage.setItem("cr_widget_greeted_v2_" + this.sessionId, "1");
+        this._showBotMessage(greeting, { persist: false, animated: true });
+        this.greeted = true;
       }
     }
 
@@ -380,7 +382,7 @@
 
       this.elements.input.addEventListener("input", () => {
         const hasText = this.elements.input.value.trim().length > 0;
-        this.elements.sendBtn.disabled = !hasText || this.loading;
+        this.elements.sendBtn.disabled = !hasText; // || this.loading; // Loading check commented out
       });
 
       this.elements.sendBtn.addEventListener("click", () => this._onSend());
@@ -407,13 +409,12 @@
     }
 
     _onSend() {
-      if (this.loading) return;
+      // if (this.loading) return; // Loading check commented out
       const text = this.elements.input.value.trim();
       if (!text) return;
 
       this._renderUserRow(text);
       this._scrollToBottom(true);
-      this._pushMessage({ role: "user", text, time: Date.now() });
       this.elements.input.value = "";
       this.elements.sendBtn.disabled = true;
       this.elements.input.focus();
@@ -423,6 +424,8 @@
         bot_id: this.botId,
         session_id: this.sessionId,
         user_message: text,
+        api_key: this.apiKey,
+        page_url: window.location.href,
       };
       this.lastPayload = { payload };
 
@@ -430,8 +433,9 @@
     }
 
     async _callApiAndRender(payload) {
+      // Typing indicator disabled: _showTyping is a no-op now
       this._showTyping(true);
-      this.loading = true;
+      // this.loading = true; // Loading state commented out
       this.elements.sendBtn.disabled = true;
 
       try {
@@ -462,14 +466,20 @@
         });
         this._showToast("Network error. Retry available.");
       } finally {
+        // Typing indicator disabled: _showTyping is a no-op now
         this._showTyping(false);
-        this.loading = false;
+        // this.loading = false; // Loading state commented out
         const hasText = this.elements.input.value.trim().length > 0;
         this.elements.sendBtn.disabled = !hasText;
       }
     }
 
     _showTyping(show) {
+      // Typing indicator temporarily disabled.
+      // Leave this method as a no-op to prevent the typing placeholder from rendering.
+      return;
+
+      /* Original typing implementation (kept for reference):
       if (show) {
         if (!this.shadow.querySelector(".typing-row")) {
           const row = document.createElement("div");
@@ -484,6 +494,7 @@
         const t = this.shadow.querySelector(".typing-row");
         if (t) t.remove();
       }
+      */
     }
 
     async _showBotMessage(
@@ -522,6 +533,7 @@
       this._maybeAutoScroll();
 
       if (opts.animated) {
+        // Typing indicator disabled: ensure we don't attempt to show it
         this._showTyping(false);
         const span = content.querySelector(".bot-text");
         const speed = text && text.length > 200 ? 8 : 10;
@@ -532,36 +544,10 @@
         if (span) span.textContent = text;
       }
 
-      if (opts.persist)
-        this._pushMessage({ role: "bot", text, time: Date.now() });
+      // Messages are no longer persisted to localStorage
     }
 
-    _pushMessage(msg) {
-      try {
-        const raw = localStorage.getItem(this.messagesKey);
-        const arr = raw ? JSON.parse(raw) : [];
-        arr.push(msg);
-        localStorage.setItem(this.messagesKey, JSON.stringify(arr));
-        return arr.length - 1;
-      } catch (e) {
-        console.warn("Could not persist messages", e);
-        return null;
-      }
-    }
-
-    _loadMessagesFromStorage() {
-      try {
-        const raw = localStorage.getItem(this.messagesKey);
-        const arr = raw ? JSON.parse(raw) : [];
-        arr.forEach((m) => {
-          if (m.role === "user") this._renderUserRow(m.text);
-          else this._renderBotRow(m.text);
-        });
-        setTimeout(() => this._scrollToBottom(true), 40);
-      } catch (e) {
-        /* ignore */
-      }
-    }
+    // Messages are no longer loaded from localStorage
 
     _renderUserRow(text) {
       const row = document.createElement("div");

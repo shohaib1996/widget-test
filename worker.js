@@ -5,10 +5,10 @@ export default {
     const corsHeaders = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Headers": "Content-Type, X-API-Key",
     };
 
-    // IMPORTANT: Handle preflight CORS
+    // Handle preflight CORS
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: corsHeaders });
     }
@@ -17,48 +17,84 @@ export default {
       try {
         const body = await request.json();
 
-        const client_id = body.client_id || null;
-        const bot_id = body.bot_id || null;
+        const client_id = body.client_id || "1001";
+        const bot_id = body.bot_id || "2001";
         const session_id = body.session_id || null;
         const user_message = body.user_message || "";
+        const api_key = body.api_key || "cr_test_1234567890abcdef";
+        const page_url = body.page_url || null;
 
-        const PRESET_REPLIES = [
-          "Hi there! Thanks for reaching out — how can I help you today?",
-          "Hello! I'm here to answer anything you need. What’s on your mind?",
-          "Hey! Great to see you here. How can I assist?",
-          "Hi! I’m ready whenever you are. What would you like to talk about?",
-          "Welcome! Tell me what you’re looking for and I’ll do my best to help.",
-          "Hello! Happy to help — just type your question below.",
-          "Hi! What brings you here today?",
-          "Hey there! How can I support you right now?",
-          "Hello! Need assistance? Ask me anything.",
-          "Hi! I’m here and ready to assist you — go ahead!",
-          "Hi! Feel free to ask me anything.",
-          "Hello! How can I make your day easier?",
-          "Hey! What would you like help with today?",
-          "Hi! I’m listening — what’s your question?",
-          "Hello! What can I do for you?",
-        ];
+        // Call the Ceron Engine API
+        const ceronApiUrl =
+          "https://cr-engine.jnowlan21.workers.dev/api/support-bot/query";
 
-        const randomReply =
-          PRESET_REPLIES[Math.floor(Math.random() * PRESET_REPLIES.length)];
+        const ceronPayload = {
+          bot_id: bot_id,
+          client_id: client_id,
+          session_id: session_id,
+          user_message: user_message,
+          page_url: page_url,
+        };
 
+        const ceronResponse = await fetch(ceronApiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": api_key,
+          },
+          body: JSON.stringify(ceronPayload),
+        });
+
+        if (!ceronResponse.ok) {
+          const errorText = await ceronResponse.text();
+          console.error("Ceron API error:", ceronResponse.status, errorText);
+
+          return new Response(
+            JSON.stringify({
+              error: "API request failed",
+              status: ceronResponse.status,
+              details: errorText,
+            }),
+            {
+              status: ceronResponse.status,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            }
+          );
+        }
+
+        const ceronData = await ceronResponse.json();
+
+        // Transform Ceron API response to widget format
         const responseBody = {
-          reply: randomReply,
+          reply: ceronData.bot_answer || "Sorry, I didn't get that.",
           client_id,
           bot_id,
           session_id,
-          messages: [{ role: "bot", text: randomReply }],
+          confidence: ceronData.confidence || null,
+          meta: ceronData.meta || {},
+          messages: [
+            {
+              role: "bot",
+              text: ceronData.bot_answer || "Sorry, I didn't get that.",
+            },
+          ],
         };
 
         return new Response(JSON.stringify(responseBody), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       } catch (err) {
-        return new Response(JSON.stringify({ error: "Invalid JSON" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        console.error("Worker error:", err);
+        return new Response(
+          JSON.stringify({
+            error: "Internal server error",
+            message: err.message,
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
     }
 

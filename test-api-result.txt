@@ -1,0 +1,42 @@
+Testing Ceron Engine API...
+API Key: cr_test_1234567890abcdef
+Payload: {
+  "bot_id": "2001",
+  "client_id": "1001",
+  "session_id": "test-session-123",
+  "user_message": "Hi, how long is shipping, What is the return policy?",
+  "page_url": "https://acme-test.com/help"
+}
+
+---
+
+Status: 200 OK
+
+Response Headers:
+  access-control-allow-headers: Content-Type, X-API-Key
+  access-control-allow-methods: POST, OPTIONS
+  access-control-allow-origin: *
+  alt-svc: h3=":443"; ma=86400
+  cf-ray: 9a8552ac3c2fce36-SIN
+  connection: keep-alive
+  content-encoding: br
+  content-type: application/json
+  date: Wed, 03 Dec 2025 19:03:19 GMT
+  nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+  report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=RkMPZQ4iKWfu2ZYdNjJzTk%2B8ge7YdGbMZY30UMCW1mpdSMJUWoc%2BlPUg%2FGIOEzIio2ltwXTYxm3vAWNR%2Biwn7YFYNCy%2BAj0W1xhHchcR%2Bs3e9C0kf5SVaFkrE%2F34qpA%3D"}]}
+  server: cloudflare
+  transfer-encoding: chunked
+  vary: accept-encoding
+
+Response Body:
+{
+  "ok": true,
+  "bot_answer": "Shipping takes 3–5 business days for standard shipping and 7–14 days for international orders. We accept returns within 30 days of purchase, and items must be unused and in original packaging.",
+  "confidence": 0.9,
+  "meta": {
+    "model": "mistral-small-latest",
+    "latency_ms": 1494
+  }
+}
+
+✅ API call successful!
