@@ -13,6 +13,37 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
+    // Warm-init ping endpoint
+    if (request.method === "GET" && url.pathname === "/api/support-bot/ping") {
+      try {
+        const client_id = url.searchParams.get("client_id") || "1001";
+        const bot_id = url.searchParams.get("bot_id") || "2001";
+
+        // Optional: Make a lightweight call to Ceron Engine to warm it up
+        // For now, just return success to warm up this worker
+        return new Response(
+          JSON.stringify({
+            status: "ok",
+            message: "Worker warmed",
+            client_id,
+            bot_id,
+          }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      } catch (err) {
+        console.error("Ping error:", err);
+        return new Response(
+          JSON.stringify({ status: "error", message: err.message }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+    }
+
     if (request.method === "POST" && url.pathname === "/api/widget") {
       try {
         const body = await request.json();

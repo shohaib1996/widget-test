@@ -250,6 +250,7 @@
       this.loading = false;
       this.lastPayload = null;
       this.greeted = false;
+      this.warmupPingSent = false;
     }
 
     init(config = {}) {
@@ -277,12 +278,6 @@
 
       this._renderShell();
       this._attachListeners();
-
-      if (!this.greeted) {
-        const greeting = "Hello! How can I help you?";
-        this._showBotMessage(greeting, { persist: false, animated: true });
-        this.greeted = true;
-      }
     }
 
     _getOrCreateSession() {
@@ -373,7 +368,20 @@
         this.elements.bubble.innerHTML = this.isOpen ? ICONS.close : ICONS.chat;
         this.elements.bubble.title = this.isOpen ? "Close chat" : "Open chat";
 
-        if (this.isOpen) setTimeout(() => this.elements.input.focus(), 120);
+        if (this.isOpen) {
+          setTimeout(() => this.elements.input.focus(), 120);
+
+          // Send warmup ping and show greeting on first open
+          if (!this.warmupPingSent) {
+            this._sendWarmupPing();
+            this.warmupPingSent = true;
+          }
+
+          if (!this.greeted) {
+            this._renderBotRow("Hi there! How can I help today?");
+            this.greeted = true;
+          }
+        }
       };
 
       this.elements.bubble.addEventListener("click", toggle);
@@ -587,6 +595,23 @@
       t.textContent = msg;
       t.classList.add("show");
       setTimeout(() => t.classList.remove("show"), ms);
+    }
+
+    _sendWarmupPing() {
+      // Fire warmup ping in background to reduce first-message latency
+      const pingUrl = `${this.apiUrl.replace(
+        "/api/widget",
+        "/api/support-bot/ping"
+      )}?client_id=${this.clientId}&bot_id=${this.botId}`;
+
+      fetch(pingUrl, { method: "GET" })
+        .then(() => {
+          // Ping successful - worker and backend are warmed
+        })
+        .catch((err) => {
+          // Silently fail - not critical
+          console.warn("Warmup ping failed:", err);
+        });
     }
 
     _typeWrite(el, text, speed = 10) {
