@@ -803,7 +803,7 @@
           client_id: this.clientId,
           bot_id: this.botId,
           session_id: this.sessionId,
-          user_message: "", // Empty message for warmup
+          user_message: "ping", // Warmup message - response will be discarded
           page_url: window.location.href,
         }),
       })
