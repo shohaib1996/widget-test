@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Widget Installation Demo - Cipher & Row</title>
+    <title>Test Widget - Cipher & Row</title>
     <style>
       * {
         box-sizing: border-box;
@@ -29,56 +29,71 @@
       }
       h1 {
         color: #333;
-        margin-bottom: 10px;
+        margin-bottom: 20px;
         font-size: 28px;
       }
-      p {
-        color: #666;
-        margin-bottom: 30px;
-        line-height: 1.6;
-      }
-      .highlight {
-        background: #f0f4ff;
+      .instruction {
+        background: #fff3cd;
         padding: 15px;
         border-radius: 8px;
-        border-left: 4px solid #667eea;
+        border-left: 4px solid #ffc107;
         margin-bottom: 20px;
       }
-      .highlight strong {
+      .instruction strong {
+        color: #856404;
+      }
+      .step {
+        margin: 15px 0;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+      }
+      .step strong {
         color: #667eea;
+      }
+      code {
+        background: #e9ecef;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 0.9em;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>🎉 Widget Installation Demo</h1>
-      <p>
-        This page demonstrates how the Cipher & Row widget works when installed
-        on your website using the installation code from your dashboard.
-      </p>
+      <h1>🧪 Widget Test Page</h1>
 
-      <div class="highlight">
-        <strong>Configuration:</strong><br />
-        The widget settings are loaded from the global config object below.
-        Changes you make in the dashboard will be reflected when you copy and
-        paste the new installation code!
+      <div class="instruction">
+        <strong>⚠️ Important:</strong><br />
+        Replace <code>YOUR_API_KEY_HERE</code> below with your actual API key from the dashboard settings page before testing!
       </div>
 
-      <p>Click the chat widget in the bottom-right corner to test it out!</p>
+      <div class="step">
+        <strong>Testing Steps:</strong>
+        <ol style="margin-left: 20px; margin-top: 10px;">
+          <li>Replace the API key in the script below</li>
+          <li>Click the chat bubble in the bottom-right corner</li>
+          <li>The greeting message should appear</li>
+          <li>Try sending a message to test the full functionality</li>
+        </ol>
+      </div>
     </div>
 
     <!--
       ============================================
-      COPY EVERYTHING BELOW FROM YOUR DASHBOARD
+      WIDGET INSTALLATION CODE
+      Replace YOUR_API_KEY_HERE with your real API key
       ============================================
     -->
+
     <!-- Cipher & Row Widget Configuration -->
     <script>
       window.CipherRowConfig = {
         clientId: "3e4eb378-9ac4-4a58-ab03-fefe994cf704",
         botId: "2001",
         apiKey: "YOUR_API_KEY_HERE",
-        primaryColor: "#282ca4",
+        primaryColor: "#667eea",
         greeting: "Hi! How can we help you today?",
         position: "bottom-right",
       };
@@ -90,10 +105,15 @@
     <!-- Widget Script -->
     <script src="https://widget-test-bfq.pages.dev/widget.js"></script>
 
+    <!-- Initialize Widget -->
     <script>
-      // Initialize the widget (it reads everything from window.CipherRowConfig above)
-      window.addEventListener("load", () => {
-        CRWidget.init({});
+      window.addEventListener("load", function() {
+        if (window.CRWidget) {
+          console.log("Initializing widget with config:", window.CipherRowConfig);
+          CRWidget.init({});
+        } else {
+          console.error("CRWidget not found!");
+        }
       });
     </script>
   </body>

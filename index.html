@@ -132,7 +132,7 @@
     <div id="cr-widget"></div>
 
     <!-- Widget Script -->
-    <script src="https://widget-test-bfq.pages.dev/widget.js"></script>
+    <script src="./widget.js"></script>
     <script>
       window.addEventListener("load", () => {
         // For testing: Set some values in localStorage
@@ -145,12 +145,15 @@
         localStorage.setItem("widget_position", "bottom-right");
 
         // IMPORTANT: Set your API key manually in the browser console or remove this line before pushing to GitHub
-        localStorage.setItem("generated_api_key", "Your api key");
+        localStorage.setItem(
+          "generated_api_key",
+          "YOUR_API_KEY_HERE"
+        );
 
         CRWidget.init({
           apiUrl:
             "https://widget-worker.khanshohaibhossain.workers.dev/api/widget", // Not used anymore but kept for compatibility
-          clientId: "1001",
+          clientId: "3e4eb378-9ac4-4a58-ab03-fefe994cf704",
           botId: "2001",
         });
       });

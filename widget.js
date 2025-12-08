@@ -280,7 +280,7 @@
         clientId: this.clientId,
         botId: this.botId,
         hasApiKey: !!this.apiKey,
-        source: globalConfig.apiKey ? "global config" : "passed config"
+        source: globalConfig.apiKey ? "global config" : "passed config",
       });
 
       if (!this.clientId && !this.apiUrl) {
@@ -379,7 +379,7 @@
           primaryColor: this.primaryColor,
           greetingMessage: this.greetingMessage,
           position: this.position,
-          source: globalConfig.primaryColor ? "global config" : "localStorage"
+          source: globalConfig.primaryColor ? "global config" : "localStorage",
         });
       } catch (e) {
         console.warn("Failed to load widget customization:", e);
@@ -395,7 +395,12 @@
       // Calculate darker shade for hover (reduce brightness by ~10%)
       const darkerColor = this._adjustColorBrightness(this.primaryColor, -10);
 
-      console.log("Applying customization - Primary:", this.primaryColor, "Darker:", darkerColor);
+      console.log(
+        "Applying customization - Primary:",
+        this.primaryColor,
+        "Darker:",
+        darkerColor
+      );
 
       // Inject CSS custom properties into shadow DOM
       this.customStyle.textContent = `
@@ -581,15 +586,15 @@
           apiKey = localStorage.getItem("generated_api_key");
         }
 
-        // Check if we have an API key
+        // Check if user has an API key configured
         if (!apiKey || apiKey === "YOUR_API_KEY_HERE") {
           const errorText =
             "API key not found. Please generate an API key in your dashboard.";
-          this._showToast("API Key Required");
+          this._showToast("API Key Required - Check Dashboard");
           throw new Error(errorText);
         }
 
-        console.log("Making API call with clientId:", this.clientId);
+        console.log("Using API key from:", this.apiKey ? "global config" : "localStorage");
 
         // Call Ceron Engine API directly
         const res = await fetch(
@@ -624,7 +629,8 @@
         await this._showBotMessage(botText, { animated: true, persist: true });
       } catch (err) {
         console.error("Widget network error:", err);
-        const errorMessage = err.message || "Oops — something went wrong. Please retry.";
+        const errorMessage =
+          err.message || "Oops — something went wrong. Please retry.";
         this._showBotMessage(errorMessage, {
           animated: false,
           persist: true,
