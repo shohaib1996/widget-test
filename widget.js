@@ -257,12 +257,34 @@
     }
 
     init(config = {}) {
+      // Check for global config first, then use passed config
+      const globalConfig = window.CipherRowConfig || {};
+
       this.apiUrl = config.apiUrl;
-      this.apiKey = config.apiKey || null;
-      this.clientId = config.clientId || null;
-      this.botId = config.botId || null;
-      if (!this.apiUrl) {
-        console.error("CRWidget: apiUrl required");
+      this.apiKey = config.apiKey || globalConfig.apiKey || null;
+      this.clientId = config.clientId || globalConfig.clientId || null;
+      this.botId = config.botId || globalConfig.botId || null;
+
+      // Load customization from global config if available
+      if (globalConfig.primaryColor) {
+        this.primaryColor = globalConfig.primaryColor;
+      }
+      if (globalConfig.greeting) {
+        this.greetingMessage = globalConfig.greeting;
+      }
+      if (globalConfig.position) {
+        this.position = globalConfig.position;
+      }
+
+      console.log("Widget initialized with:", {
+        clientId: this.clientId,
+        botId: this.botId,
+        hasApiKey: !!this.apiKey,
+        source: globalConfig.apiKey ? "global config" : "passed config"
+      });
+
+      if (!this.clientId && !this.apiUrl) {
+        console.error("CRWidget: clientId or apiUrl required");
         return;
       }
 
@@ -274,7 +296,8 @@
 
       this.sessionId = this._getOrCreateSession();
 
-      // Load widget customization from localStorage
+      // Load widget customization from localStorage (fallback)
+      // This will only override if values weren't set by globalConfig
       this._loadCustomization();
 
       this.shadow = this.container.attachShadow({ mode: "open" });
@@ -322,31 +345,41 @@
 
     _loadCustomization() {
       try {
-        // Load primary color
-        const savedColor = localStorage.getItem("widget_primary_color");
-        console.log("Loaded color from localStorage:", savedColor);
-        if (savedColor) {
-          this.primaryColor = savedColor;
+        // Only load from localStorage if not already set by global config
+        const globalConfig = window.CipherRowConfig || {};
+
+        // Load primary color (only if not set by global config)
+        if (!globalConfig.primaryColor) {
+          const savedColor = localStorage.getItem("widget_primary_color");
+          console.log("Loaded color from localStorage:", savedColor);
+          if (savedColor) {
+            this.primaryColor = savedColor;
+          }
         }
 
-        // Load greeting message
-        const savedGreeting = localStorage.getItem("widget_greeting");
-        console.log("Loaded greeting from localStorage:", savedGreeting);
-        if (savedGreeting) {
-          this.greetingMessage = savedGreeting;
+        // Load greeting message (only if not set by global config)
+        if (!globalConfig.greeting) {
+          const savedGreeting = localStorage.getItem("widget_greeting");
+          console.log("Loaded greeting from localStorage:", savedGreeting);
+          if (savedGreeting) {
+            this.greetingMessage = savedGreeting;
+          }
         }
 
-        // Load position
-        const savedPosition = localStorage.getItem("widget_position");
-        console.log("Loaded position from localStorage:", savedPosition);
-        if (savedPosition) {
-          this.position = savedPosition;
+        // Load position (only if not set by global config)
+        if (!globalConfig.position) {
+          const savedPosition = localStorage.getItem("widget_position");
+          console.log("Loaded position from localStorage:", savedPosition);
+          if (savedPosition) {
+            this.position = savedPosition;
+          }
         }
 
         console.log("Final widget config:", {
           primaryColor: this.primaryColor,
           greetingMessage: this.greetingMessage,
-          position: this.position
+          position: this.position,
+          source: globalConfig.primaryColor ? "global config" : "localStorage"
         });
       } catch (e) {
         console.warn("Failed to load widget customization:", e);
@@ -542,16 +575,21 @@
       this.elements.sendBtn.disabled = true;
 
       try {
-        // Get generated API key from localStorage
-        const generatedApiKey = localStorage.getItem("generated_api_key");
+        // Use API key from global config, or fallback to localStorage
+        let apiKey = this.apiKey;
+        if (!apiKey) {
+          apiKey = localStorage.getItem("generated_api_key");
+        }
 
-        // Check if user has generated an API key
-        if (!generatedApiKey) {
+        // Check if we have an API key
+        if (!apiKey || apiKey === "YOUR_API_KEY_HERE") {
           const errorText =
-            "API key not found. Please generate an API key in Settings to use the chatbot.";
-          this._showToast("API Key Required - Check Settings");
+            "API key not found. Please generate an API key in your dashboard.";
+          this._showToast("API Key Required");
           throw new Error(errorText);
         }
+
+        console.log("Making API call with clientId:", this.clientId);
 
         // Call Ceron Engine API directly
         const res = await fetch(
@@ -561,7 +599,7 @@
             headers: {
               accept: "application/json",
               "Content-Type": "application/json",
-              "x-api-key": generatedApiKey,
+              "x-api-key": apiKey,
             },
             body: JSON.stringify(payload),
           }
