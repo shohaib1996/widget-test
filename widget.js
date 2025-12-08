@@ -290,10 +290,12 @@
         return;
       }
 
+      // Create container if it doesn't exist
       this.container = document.getElementById("cr-widget");
       if (!this.container) {
-        console.error("CRWidget: #cr-widget not found");
-        return;
+        this.container = document.createElement("div");
+        this.container.id = "cr-widget";
+        document.body.appendChild(this.container);
       }
 
       this.sessionId = this._getOrCreateSession();

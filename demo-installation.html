@@ -77,23 +77,31 @@
       window.CipherRowConfig = {
         clientId: "3e4eb378-9ac4-4a58-ab03-fefe994cf704",
         botId: "2001",
-        apiKey: "YOUR_API_KEY_HERE",
+        apiKey: "sk_live_", //5T39AHHECbe890qPnnUE2eJwk4Un3X
         primaryColor: "#282ca4",
         greeting: "Hi! How can we help you today?",
         position: "bottom-right",
       };
     </script>
 
-    <!-- Widget Container -->
-    <div id="cr-widget"></div>
-
     <!-- Widget Script -->
     <script src="https://widget-test-bfq.pages.dev/widget.js"></script>
 
+    <!-- Initialize Widget -->
     <script>
-      // Initialize the widget (it reads everything from window.CipherRowConfig above)
-      window.addEventListener("load", () => {
-        CRWidget.init({});
+      window.addEventListener("load", function () {
+        if (window.CRWidget) {
+          CRWidget.init({});
+        }
+      });
+    </script>
+
+    <!-- Initialize Widget -->
+    <script>
+      window.addEventListener("load", function () {
+        if (window.CRWidget) {
+          CRWidget.init({});
+        }
       });
     </script>
   </body>
