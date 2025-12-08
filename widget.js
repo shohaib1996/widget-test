@@ -14,17 +14,17 @@
     :host { all: initial; }
     :host, * { box-sizing: border-box; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
     :host {
-      --primary: #8A06E6;
-      --primary-600: #7505C7;
+      --primary: var(--widget-primary, #8A06E6);
+      --primary-600: var(--widget-primary-600, #7505C7);
       --bg-window: #ffffff;
-      --bg-header: linear-gradient(90deg,#8A06E6,#7A05D0);
+      --bg-header: var(--widget-bg-header, linear-gradient(90deg,#8A06E6,#7A05D0));
       --bg-messages: #F5F7FA;
       --bg-input: #FBFBFD;
       --text-main: #111827;
       --text-muted: #6B7280;
       --border: #E5E7EB;
       --bubble-bot: #ffffff;
-      --bubble-user: #8A06E6;
+      --bubble-user: var(--widget-bubble-user, #8A06E6);
       --bubble-user-text: #ffffff;
       --shadow: 0 10px 25px rgba(2,6,23,0.08);
     }
@@ -251,6 +251,9 @@
       this.lastPayload = null;
       this.greeted = false;
       this.warmupPingSent = false;
+      this.primaryColor = "#8A06E6"; // Default color
+      this.greetingMessage = "Hi there! How can I help today?"; // Default greeting
+      this.position = "bottom-right"; // Default position
     }
 
     init(config = {}) {
@@ -271,12 +274,22 @@
 
       this.sessionId = this._getOrCreateSession();
 
+      // Load widget customization from localStorage
+      this._loadCustomization();
+
       this.shadow = this.container.attachShadow({ mode: "open" });
+
+      // Create base styles
       const style = document.createElement("style");
       style.textContent = STYLES;
       this.shadow.appendChild(style);
 
+      // Create custom properties style
+      this.customStyle = document.createElement("style");
+      this.shadow.appendChild(this.customStyle);
+
       this._renderShell();
+      this._applyCustomization();
       this._attachListeners();
     }
 
@@ -305,6 +318,92 @@
           return v.toString(16);
         }
       );
+    }
+
+    _loadCustomization() {
+      try {
+        // Load primary color
+        const savedColor = localStorage.getItem("widget_primary_color");
+        console.log("Loaded color from localStorage:", savedColor);
+        if (savedColor) {
+          this.primaryColor = savedColor;
+        }
+
+        // Load greeting message
+        const savedGreeting = localStorage.getItem("widget_greeting");
+        console.log("Loaded greeting from localStorage:", savedGreeting);
+        if (savedGreeting) {
+          this.greetingMessage = savedGreeting;
+        }
+
+        // Load position
+        const savedPosition = localStorage.getItem("widget_position");
+        console.log("Loaded position from localStorage:", savedPosition);
+        if (savedPosition) {
+          this.position = savedPosition;
+        }
+
+        console.log("Final widget config:", {
+          primaryColor: this.primaryColor,
+          greetingMessage: this.greetingMessage,
+          position: this.position
+        });
+      } catch (e) {
+        console.warn("Failed to load widget customization:", e);
+      }
+    }
+
+    _applyCustomization() {
+      if (!this.shadow || !this.customStyle) return;
+
+      const wrapper = this.shadow.querySelector(".wrapper");
+      if (!wrapper) return;
+
+      // Calculate darker shade for hover (reduce brightness by ~10%)
+      const darkerColor = this._adjustColorBrightness(this.primaryColor, -10);
+
+      console.log("Applying customization - Primary:", this.primaryColor, "Darker:", darkerColor);
+
+      // Inject CSS custom properties into shadow DOM
+      this.customStyle.textContent = `
+        :host {
+          --primary: ${this.primaryColor} !important;
+          --primary-600: ${darkerColor} !important;
+          --bubble-user: ${this.primaryColor} !important;
+          --bg-header: linear-gradient(90deg, ${this.primaryColor}, ${darkerColor}) !important;
+        }
+      `;
+
+      // Apply position
+      if (this.position === "bottom-left") {
+        wrapper.style.right = "auto";
+        wrapper.style.left = "20px";
+      }
+
+      console.log("Customization applied successfully");
+    }
+
+    _adjustColorBrightness(hex, percent) {
+      // Remove # if present
+      hex = hex.replace("#", "");
+
+      // Convert to RGB
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+
+      // Adjust brightness
+      const newR = Math.max(0, Math.min(255, r + (r * percent) / 100));
+      const newG = Math.max(0, Math.min(255, g + (g * percent) / 100));
+      const newB = Math.max(0, Math.min(255, b + (b * percent) / 100));
+
+      // Convert back to hex
+      const toHex = (n) => {
+        const hex = Math.round(n).toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+      };
+
+      return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
     }
 
     _renderShell() {
@@ -378,7 +477,7 @@
           }
 
           if (!this.greeted) {
-            this._renderBotRow("Hi there! How can I help today?");
+            this._renderBotRow(this.greetingMessage);
             this.greeted = true;
           }
         }
@@ -430,7 +529,6 @@
         bot_id: this.botId,
         session_id: this.sessionId,
         user_message: text,
-        api_key: this.apiKey,
         page_url: window.location.href,
       };
       this.lastPayload = { payload };
@@ -444,32 +542,57 @@
       this.elements.sendBtn.disabled = true;
 
       try {
-        const res = await fetch(this.apiUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+        // Get generated API key from localStorage
+        const generatedApiKey = localStorage.getItem("generated_api_key");
 
-        if (!res.ok) throw new Error("HTTP " + res.status);
+        // Check if user has generated an API key
+        if (!generatedApiKey) {
+          const errorText =
+            "API key not found. Please generate an API key in Settings to use the chatbot.";
+          this._showToast("API Key Required - Check Settings");
+          throw new Error(errorText);
+        }
+
+        // Call Ceron Engine API directly
+        const res = await fetch(
+          "https://cr-engine.jnowlan21.workers.dev/api/support-bot/query",
+          {
+            method: "POST",
+            headers: {
+              accept: "application/json",
+              "Content-Type": "application/json",
+              "x-api-key": generatedApiKey,
+            },
+            body: JSON.stringify(payload),
+          }
+        );
+
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          const backendError =
+            errorData.error ||
+            errorData.message ||
+            "Something went wrong. Please try again.";
+          throw new Error(backendError);
+        }
 
         const data = await res.json();
         const botText =
-          (data &&
-            (data.reply ||
-              (Array.isArray(data.messages) &&
-                data.messages[0] &&
-                data.messages[0].text))) ||
+          data.bot_answer ||
+          data.reply ||
+          (data.messages && data.messages[0]?.text) ||
           "Sorry, I didn't get that.";
 
         await this._showBotMessage(botText, { animated: true, persist: true });
       } catch (err) {
         console.error("Widget network error:", err);
-        this._showBotMessage("Oops — something went wrong. Please retry.", {
+        const errorMessage = err.message || "Oops — something went wrong. Please retry.";
+        this._showBotMessage(errorMessage, {
           animated: false,
           persist: true,
           error: true,
         });
-        this._showToast("Network error. Retry available.");
+        this._showToast("Error: " + errorMessage);
       } finally {
         this._showTyping(false);
         this.loading = false;
