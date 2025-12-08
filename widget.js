@@ -55,6 +55,7 @@
       transition: transform .12s ease, background .12s;
     }
     .bubble:hover { transform: scale(1.05); background: var(--primary-600); }
+    .bubble svg { pointer-events: none; }
 
     .chat-window {
       width: 100%;
