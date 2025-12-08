@@ -592,7 +592,6 @@
         if (!apiKey || apiKey === "YOUR_API_KEY_HERE") {
           const errorText =
             "API key not found. Please generate an API key in your dashboard.";
-          this._showToast("API Key Required - Check Dashboard");
           throw new Error(errorText);
         }
 
