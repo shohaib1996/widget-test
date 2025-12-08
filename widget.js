@@ -282,6 +282,9 @@
         clientId: this.clientId,
         botId: this.botId,
         hasApiKey: !!this.apiKey,
+        greetingMessage: this.greetingMessage,
+        primaryColor: this.primaryColor,
+        position: this.position,
         source: globalConfig.apiKey ? "global config" : "passed config",
       });
 
@@ -514,11 +517,13 @@
 
           // Send warmup ping and show greeting on first open
           if (!this.warmupPingSent) {
+            console.log("Sending warmup ping...");
             this._sendWarmupPing();
             this.warmupPingSent = true;
           }
 
           if (!this.greeted) {
+            console.log("Showing greeting message:", this.greetingMessage);
             this._renderBotRow(this.greetingMessage);
             this.greeted = true;
           }
@@ -768,13 +773,18 @@
 
     _sendWarmupPing() {
       // Fire warmup ping in background to reduce first-message latency
-      const pingUrl = `${this.apiUrl.replace(
-        "/api/widget",
-        "/api/support-bot/ping"
-      )}?client_id=${this.clientId}&bot_id=${this.botId}`;
+      if (!this.clientId || !this.botId) {
+        console.warn("Cannot send warmup ping: missing clientId or botId");
+        return;
+      }
+
+      const pingUrl = `https://cr-engine.jnowlan21.workers.dev/api/support-bot/ping?client_id=${this.clientId}&bot_id=${this.botId}`;
+
+      console.log("Sending warmup ping to:", pingUrl);
 
       fetch(pingUrl, { method: "GET" })
-        .then(() => {
+        .then((response) => {
+          console.log("Warmup ping successful:", response.status);
           // Ping successful - worker and backend are warmed
         })
         .catch((err) => {
