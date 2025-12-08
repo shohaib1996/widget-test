@@ -269,7 +269,8 @@
       if (globalConfig.primaryColor) {
         this.primaryColor = globalConfig.primaryColor;
       }
-      if (globalConfig.greeting) {
+      // Use globalConfig.greeting if provided, otherwise keep the default
+      if (globalConfig.greeting && globalConfig.greeting.trim()) {
         this.greetingMessage = globalConfig.greeting;
       }
       if (globalConfig.position) {
@@ -361,7 +362,7 @@
         if (!globalConfig.greeting) {
           const savedGreeting = localStorage.getItem("widget_greeting");
           console.log("Loaded greeting from localStorage:", savedGreeting);
-          if (savedGreeting) {
+          if (savedGreeting && savedGreeting.trim()) {
             this.greetingMessage = savedGreeting;
           }
         }
