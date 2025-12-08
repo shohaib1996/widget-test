@@ -637,7 +637,6 @@
           persist: true,
           error: true,
         });
-        this._showToast("Error: " + errorMessage);
       } finally {
         this._showTyping(false);
         this.loading = false;
