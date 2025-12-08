@@ -778,18 +778,48 @@
         return;
       }
 
-      const pingUrl = `https://cr-engine.jnowlan21.workers.dev/api/support-bot/ping?client_id=${this.clientId}&bot_id=${this.botId}`;
+      // Get API key from global config or localStorage
+      let apiKey = this.apiKey;
+      if (!apiKey) {
+        apiKey = localStorage.getItem("generated_api_key");
+      }
 
-      console.log("Sending warmup ping to:", pingUrl);
+      if (!apiKey || apiKey === "YOUR_API_KEY_HERE") {
+        console.warn("Cannot send warmup ping: missing API key");
+        return;
+      }
 
-      fetch(pingUrl, { method: "GET" })
-        .then((response) => {
-          console.log("Warmup ping successful:", response.status);
-          // Ping successful - worker and backend are warmed
+      console.log("Sending warmup request to warm up the backend...");
+
+      // Send a lightweight warmup request to the main endpoint
+      fetch("https://cr-engine.jnowlan21.workers.dev/api/support-bot/query", {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          client_id: this.clientId,
+          bot_id: this.botId,
+          session_id: this.sessionId,
+          user_message: "", // Empty message for warmup
+          page_url: window.location.href,
+        }),
+      })
+        .then(async (response) => {
+          if (response.ok) {
+            // Consume the response body but don't display it
+            const data = await response.json();
+            console.log("Warmup complete - backend is ready:", response.status);
+            // Response is discarded - not shown to user
+          } else {
+            console.warn("Warmup request returned error:", response.status);
+          }
         })
         .catch((err) => {
           // Silently fail - not critical
-          console.warn("Warmup ping failed:", err);
+          console.warn("Warmup request failed:", err);
         });
     }
 
