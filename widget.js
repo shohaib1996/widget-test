@@ -462,7 +462,7 @@
       inner += '  <div class="header">';
       inner += '    <div class="header-left">';
       inner +=
-        '      <div class="header-icon"><img src="images/Text.png" alt="Icon" style="width:24px; height:24px; object-fit:contain;" /></div>';
+        '      <div class="header-icon"><img src="https://cdn.cipherandrow.com/images/Text.png" alt="Icon" style="width:24px; height:24px; object-fit:contain;" /></div>';
       inner += '      <div class="title">Support Assistant</div>';
       inner += "    </div>";
       inner += '    <div style="display:flex; gap:10px; align-items:center;">';
@@ -602,7 +602,10 @@
           throw new Error(errorText);
         }
 
-        console.log("Using API key from:", this.apiKey ? "global config" : "localStorage");
+        console.log(
+          "Using API key from:",
+          this.apiKey ? "global config" : "localStorage"
+        );
 
         // Call Ceron Engine API directly
         const res = await fetch(
