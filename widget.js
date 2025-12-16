@@ -252,25 +252,48 @@
       this.lastPayload = null;
       this.greeted = false;
       this.warmupPingSent = false;
+      this.initialized = false; // Track if this instance has been initialized
       this.primaryColor = "#8A06E6"; // Default color
       this.greetingMessage = "Hi there! How can I help today?"; // Default greeting
       this.position = "bottom-right"; // Default position
     }
 
-    init(config = {}) {
-      // Check for global config first, then use passed config
-      const globalConfig = window.CipherRowConfig || {};
+    init(opts = {}) {
+      // REQUIREMENT: Respect load-once guard
+      // Check if widget has already been booted globally
+      if (window.__CR_WIDGET_BOOTED__) {
+        console.warn(
+          "CRWidget: Widget already initialized. Skipping duplicate initialization."
+        );
+        return;
+      }
 
-      this.apiUrl = config.apiUrl;
-      this.apiKey = config.apiKey || globalConfig.apiKey || null;
-      this.clientId = config.clientId || globalConfig.clientId || null;
-      this.botId = config.botId || globalConfig.botId || null;
+      // REQUIREMENT: Prevent double initialization
+      // Check if this instance has already been initialized
+      if (this.initialized) {
+        console.warn("CRWidget: This instance is already initialized.");
+        return;
+      }
 
-      // Load customization from global config if available
+      // REQUIREMENT: Read config ONLY from window.CipherRowConfig
+      const globalConfig = window.CipherRowConfig;
+
+      if (!globalConfig) {
+        console.error(
+          "CipherRowConfig not found. Please define window.CipherRowConfig before initializing."
+        );
+        return;
+      }
+
+      this.apiKey = globalConfig.apiKey || null;
+      this.clientId = globalConfig.clientId || null;
+      this.botId = globalConfig.botId || null;
+
+      // REQUIREMENT: No other config namespaces
+      // We process customization from globalConfig ONLY.
       if (globalConfig.primaryColor) {
         this.primaryColor = globalConfig.primaryColor;
       }
-      // Use globalConfig.greeting if provided, otherwise keep the default
       if (globalConfig.greeting && globalConfig.greeting.trim()) {
         this.greetingMessage = globalConfig.greeting;
       }
@@ -278,34 +301,38 @@
         this.position = globalConfig.position;
       }
 
-      console.log("Widget initialized with:", {
+      console.log("Widget initialized with config:", {
         clientId: this.clientId,
         botId: this.botId,
-        hasApiKey: !!this.apiKey,
-        greetingMessage: this.greetingMessage,
         primaryColor: this.primaryColor,
         position: this.position,
-        source: globalConfig.apiKey ? "global config" : "passed config",
       });
 
-      if (!this.clientId && !this.apiUrl) {
-        console.error("CRWidget: clientId or apiUrl required");
+      if (!this.clientId && !this.apiKey) {
+        console.error("CRWidget: Configuration missing clientId or apiKey");
         return;
       }
 
-      // Create container if it doesn't exist
-      this.container = document.getElementById("cr-widget");
+      // REQUIREMENT: Create root element handling - "cipher-row-widget"
+      // REQUIREMENT: Check root already exists before creating again
+      this.container = document.getElementById("cipher-row-widget");
       if (!this.container) {
         this.container = document.createElement("div");
-        this.container.id = "cr-widget";
+        this.container.id = "cipher-row-widget";
         document.body.appendChild(this.container);
+      } else {
+        // Container exists - check if it already has a shadow root
+        if (this.container.shadowRoot) {
+          console.warn(
+            "CRWidget: Root element already has a shadow DOM. Skipping initialization."
+          );
+          return;
+        }
       }
 
       this.sessionId = this._getOrCreateSession();
 
-      // Load widget customization from localStorage (fallback)
-      // This will only override if values weren't set by globalConfig
-      this._loadCustomization();
+      // No localStorage customization loading per requirements
 
       this.shadow = this.container.attachShadow({ mode: "open" });
 
@@ -321,6 +348,14 @@
       this._renderShell();
       this._applyCustomization();
       this._attachListeners();
+
+      // Mark as initialized
+      this.initialized = true;
+
+      // Set global boot flag to prevent duplicate loading
+      window.__CR_WIDGET_BOOTED__ = true;
+
+      console.log("CRWidget: Successfully initialized and booted.");
     }
 
     _getOrCreateSession() {
@@ -350,48 +385,7 @@
       );
     }
 
-    _loadCustomization() {
-      try {
-        // Only load from localStorage if not already set by global config
-        const globalConfig = window.CipherRowConfig || {};
-
-        // Load primary color (only if not set by global config)
-        if (!globalConfig.primaryColor) {
-          const savedColor = localStorage.getItem("widget_primary_color");
-          console.log("Loaded color from localStorage:", savedColor);
-          if (savedColor) {
-            this.primaryColor = savedColor;
-          }
-        }
-
-        // Load greeting message (only if not set by global config)
-        if (!globalConfig.greeting) {
-          const savedGreeting = localStorage.getItem("widget_greeting");
-          console.log("Loaded greeting from localStorage:", savedGreeting);
-          if (savedGreeting && savedGreeting.trim()) {
-            this.greetingMessage = savedGreeting;
-          }
-        }
-
-        // Load position (only if not set by global config)
-        if (!globalConfig.position) {
-          const savedPosition = localStorage.getItem("widget_position");
-          console.log("Loaded position from localStorage:", savedPosition);
-          if (savedPosition) {
-            this.position = savedPosition;
-          }
-        }
-
-        console.log("Final widget config:", {
-          primaryColor: this.primaryColor,
-          greetingMessage: this.greetingMessage,
-          position: this.position,
-          source: globalConfig.primaryColor ? "global config" : "localStorage",
-        });
-      } catch (e) {
-        console.warn("Failed to load widget customization:", e);
-      }
-    }
+    // _loadCustomization removed to strictly follow "No other config namespaces"
 
     _applyCustomization() {
       if (!this.shadow || !this.customStyle) return;
@@ -401,13 +395,6 @@
 
       // Calculate darker shade for hover (reduce brightness by ~10%)
       const darkerColor = this._adjustColorBrightness(this.primaryColor, -10);
-
-      console.log(
-        "Applying customization - Primary:",
-        this.primaryColor,
-        "Darker:",
-        darkerColor
-      );
 
       // Inject CSS custom properties into shadow DOM
       this.customStyle.textContent = `
@@ -424,8 +411,6 @@
         wrapper.style.right = "auto";
         wrapper.style.left = "20px";
       }
-
-      console.log("Customization applied successfully");
     }
 
     _adjustColorBrightness(hex, percent) {
@@ -589,11 +574,9 @@
       this.elements.sendBtn.disabled = true;
 
       try {
-        // Use API key from global config, or fallback to localStorage
-        let apiKey = this.apiKey;
-        if (!apiKey) {
-          apiKey = localStorage.getItem("generated_api_key");
-        }
+        // REQUIREMENT: Read config only from window.CipherRowConfig
+        // We already set this.apiKey in init()
+        const apiKey = this.apiKey;
 
         // Check if user has an API key configured
         if (!apiKey || apiKey === "YOUR_API_KEY_HERE") {
@@ -601,11 +584,6 @@
             "API key not found. Please generate an API key in your dashboard.";
           throw new Error(errorText);
         }
-
-        console.log(
-          "Using API key from:",
-          this.apiKey ? "global config" : "localStorage"
-        );
 
         // Call Ceron Engine API directly
         const res = await fetch(
@@ -781,11 +759,8 @@
         return;
       }
 
-      // Get API key from global config or localStorage
-      let apiKey = this.apiKey;
-      if (!apiKey) {
-        apiKey = localStorage.getItem("generated_api_key");
-      }
+      // Get API key from instance (loaded from global config)
+      const apiKey = this.apiKey;
 
       if (!apiKey || apiKey === "YOUR_API_KEY_HERE") {
         console.warn("Cannot send warmup ping: missing API key");
