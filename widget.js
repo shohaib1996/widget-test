@@ -87,7 +87,7 @@
       color: #fff;
     }
     .header-left { display:flex; align-items:center; gap:12px; }
-    .title { font-size: 15px; font-weight: 600; color: white; display:flex; align-items:center; gap:8px; }
+    .title { font-size: 16Spx; font-weight: 600; color: white; display:flex; align-items:center; gap:8px; }
 
     .header-icon {
       width:36px;
@@ -202,7 +202,7 @@
       border-color: var(--primary);
       box-shadow: 0 4px 14px rgba(138,6,230,0.15);
     }
-    .input-pill input { border:0; outline:none; background: transparent; flex:1; font-size:15px; color: #374151; padding:0; min-height:20px; }
+    .input-pill input { border:0; outline:none; background: transparent; flex:1; font-size:16px; color: #374151; padding:0; min-height:20px; }
     .send-btn {
       width:36px; height:36px; border-radius:12px; border:none; cursor:pointer;
       background: var(--primary); color:white; display:grid; place-items:center;
