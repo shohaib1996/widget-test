@@ -75,25 +75,47 @@
     <!-- Cipher & Row Widget Configuration -->
     <script>
       window.CipherRowConfig = {
-        clientId: "8a18e7c2-2dc5-4bf7-af6c-0e72fea0f0ff",
+        clientId: "2edf4bbc-e6d8-448c-9231-8481f3951c0f",
         botId: "2001",
         apiKey: "pk_live_",
-        primaryColor: "#0f75c2",
-        greeting: "Hi! How can we help you today??",
+        primaryColor: "#925FF0",
+        greeting: "Hi! How can we help you today?",
         position: "bottom-right",
       };
     </script>
-
     <!-- Widget Script -->
     <script src="https://cdn.cipherandrow.com/widget.js"></script>
-
     <!-- Initialize Widget -->
     <script>
       window.addEventListener("load", function () {
         if (window.CRWidget) {
-          CRWidget.init({});
+          console.log("=== First init() call ===");
+          CRWidget.init();
         }
       });
+
+      // Add test button to manually trigger init
+      window.addEventListener("load", function () {
+        const container = document.querySelector(".container");
+        const testDiv = document.createElement("div");
+        testDiv.innerHTML = `
+          <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+            <strong>🧪 Duplication Test:</strong><br>
+            <button onclick="testInit()" style="margin-top: 10px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">
+              Call CRWidget.init() Again
+            </button>
+            <p style="margin-top: 10px; font-size: 12px; color: #666;">
+              Check the console to see the duplication prevention in action!
+            </p>
+          </div>
+        `;
+        container.appendChild(testDiv);
+      });
+
+      function testInit() {
+        console.log("\n=== Manual init() call from button ===");
+        CRWidget.init();
+      }
     </script>
   </body>
 </html>

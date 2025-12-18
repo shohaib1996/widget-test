@@ -3,7 +3,7 @@
  * Handles all UI rendering and DOM manipulation
  */
 
-import { WIDGET_ICONS } from "./widget-icons.js";
+import { WIDGET_ICONS } from "./widget-icons-second.js";
 
 export class WidgetUI {
   constructor(shadow, config = {}) {

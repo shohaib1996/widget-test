@@ -131,21 +131,28 @@
       </main>
     </div>
 
-    <!-- Widget Container -->
-    <div id="cr-widget"></div>
-
-    <!-- Widget Script -->
-    <script type="module" src="./widget-second.js"></script>
+    <!-- Cipher & Row Widget Configuration -->
     <script>
-      // Configure widget BEFORE it loads
       window.CipherRowConfig = {
         clientId: "3e4eb378-9ac4-4a58-ab03-fefe994cf704",
         botId: "2001",
         apiKey: "sk_live_", // Set your API key here
-        primaryColor: "#2db62b",
+        primaryColor: "#000000",
         greeting: "Hi! How can we help you today?",
         position: "bottom-right",
       };
+    </script>
+
+    <!-- Widget Script -->
+    <script type="module" src="./widget-new.js"></script>
+
+    <!-- Initialize Widget -->
+    <script type="module">
+      window.addEventListener("load", function () {
+        if (window.CRWidget) {
+          CRWidget.init();
+        }
+      });
     </script>
   </body>
 </html>

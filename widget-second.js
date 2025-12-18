@@ -3,9 +3,9 @@
  * Main orchestrator that brings together all widget modules
  */
 
-import { WIDGET_STYLES } from "./widget-styles.js";
-import { WidgetUI } from "./widget-ui.js";
-import { WidgetAPI } from "./widget-api.js";
+import { WIDGET_STYLES } from "./widget-styles-second.js";
+import { WidgetUI } from "./widget-ui-second.js";
+import { WidgetAPI } from "./widget-api-second.js";
 
 (function () {
   class CRWidget {

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Z-Index Test - Cipher & Row Widget</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+      .container {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 28px;
+      }
+      p {
+        color: #666;
+        margin-bottom: 20px;
+        line-height: 1.6;
+      }
+
+      /* Test elements with various z-index values */
+      .test-element {
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        position: relative;
+      }
+
+      .z-low {
+        background: #28a745;
+        z-index: 10;
+      }
+
+      .z-medium {
+        background: #ffc107;
+        z-index: 100;
+        margin-left: 30px;
+      }
+
+      .z-high {
+        background: #dc3545;
+        z-index: 1000;
+        margin-left: 60px;
+      }
+
+      .z-very-high {
+        background: #6f42c1;
+        z-index: 9999;
+        margin-left: 90px;
+      }
+
+      .z-extreme {
+        background: #e83e8c;
+        z-index: 999999;
+        margin-left: 120px;
+      }
+
+      /* Fixed header to test overlap */
+      .fixed-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #212529;
+        color: white;
+        padding: 15px 20px;
+        z-index: 10000;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Fixed modal overlay */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 100000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal-overlay.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        max-width: 500px;
+        position: relative;
+        z-index: 100001;
+      }
+
+      .btn {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background 0.2s;
+      }
+
+      .btn:hover {
+        background: #5568d3;
+      }
+
+      .info-box {
+        background: #f0f4ff;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+        margin: 20px 0;
+      }
+
+      .info-box strong {
+        color: #667eea;
+      }
+
+      code {
+        background: #e0e7ff;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #667eea;
+        font-family: monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Fixed header with high z-index -->
+    <div class="fixed-header">
+      Fixed Header (z-index: 10,000) - Widget should be above this
+    </div>
+
+    <div style="height: 60px"></div>
+
+    <div class="container">
+      <h1>🔝 Z-Index Stacking Test</h1>
+      <p>
+        This page tests that the widget appears above all page elements,
+        including high z-index elements like modals and fixed headers.
+      </p>
+
+      <div class="info-box">
+        <strong>Widget Z-Index:</strong>
+        <code>2,147,483,647</code> (Maximum safe z-index)<br />
+        <strong>Test:</strong> The widget should appear above ALL elements
+        below, even the modal.
+      </div>
+
+      <div class="test-element z-low">Element 1 (z-index: 10) - Lowest</div>
+
+      <div class="test-element z-medium">Element 2 (z-index: 100)</div>
+
+      <div class="test-element z-high">Element 3 (z-index: 1,000)</div>
+
+      <div class="test-element z-very-high">Element 4 (z-index: 9,999)</div>
+
+      <div class="test-element z-extreme">
+        Element 5 (z-index: 999,999) - Very High
+      </div>
+
+      <div style="margin-top: 30px">
+        <button class="btn" onclick="openModal()">
+          Open Modal (z-index: 100,000+)
+        </button>
+        <p style="margin-top: 10px; font-size: 13px; color: #666">
+          Widget should appear even above this modal!
+        </p>
+      </div>
+
+      <div
+        class="info-box"
+        style="margin-top: 30px; background: #d4edda; border-color: #28a745"
+      >
+        <strong>✅ Expected Behavior:</strong><br />
+        • Widget bubble and chat window should be visible above all elements<br />
+        • Widget should be clickable even when modal is open<br />
+        • Open chat window should not be obscured by anything
+      </div>
+    </div>
+
+    <!-- Modal overlay -->
+    <div class="modal-overlay" id="modal">
+      <div class="modal-content">
+        <h2 style="margin-bottom: 15px">High Z-Index Modal</h2>
+        <p style="margin-bottom: 20px; color: #666">
+          This modal has <code>z-index: 100,000+</code><br />
+          The widget should still appear above this!
+        </p>
+        <button class="btn" onclick="closeModal()">Close Modal</button>
+      </div>
+    </div>
+
+    <!-- Cipher & Row Widget Configuration -->
+    <script>
+      window.CipherRowConfig = {
+        clientId: "3e4eb378-9ac4-4a58-ab03-fefe994cf704",
+        botId: "2001",
+        apiKey: "sk_live_",
+        primaryColor: "#667eea",
+        greeting: "Hi! I'm above everything!",
+        position: "bottom-right",
+      };
+    </script>
+
+    <!-- Widget Script -->
+    <script type="module" src="./widget-new.js"></script>
+
+    <!-- Initialize Widget -->
+    <script type="module">
+      window.addEventListener("load", function () {
+        if (window.CRWidget) {
+          CRWidget.init();
+        }
+      });
+
+      function openModal() {
+        document.getElementById("modal").classList.add("active");
+      }
+
+      function closeModal() {
+        document.getElementById("modal").classList.remove("active");
+      }
+
+      // Make functions global
+      window.openModal = openModal;
+      window.closeModal = closeModal;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visibility State System Test - Cipher & Row</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .container {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 700px;
+        width: 100%;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 28px;
+      }
+      p {
+        color: #666;
+        margin-bottom: 20px;
+        line-height: 1.6;
+      }
+      .status-box {
+        background: #f0f4ff;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+        margin-bottom: 20px;
+      }
+      .status-box h2 {
+        color: #667eea;
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+      .status-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #e0e7ff;
+      }
+      .status-item:last-child {
+        border-bottom: none;
+      }
+      .status-label {
+        font-weight: 600;
+        color: #333;
+      }
+      .status-value {
+        font-family: monospace;
+        background: #e0e7ff;
+        padding: 2px 8px;
+        border-radius: 4px;
+        color: #667eea;
+      }
+      .instructions {
+        background: #fff3cd;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #ffc107;
+        margin-top: 20px;
+      }
+      .instructions strong {
+        color: #333;
+      }
+      code {
+        background: #f5f5f5;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #d63384;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Visibility State System Test</h1>
+      <p>
+        This page demonstrates the visibility state system. Open the widget and
+        watch the state indicators update in real-time!
+      </p>
+
+      <div class="status-box">
+        <h2>📊 Current Widget State</h2>
+        <div class="status-item">
+          <span class="status-label">CSS Class:</span>
+          <span class="status-value" id="css-class">-</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Data Attribute:</span>
+          <span class="status-value" id="data-attr">-</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Container Element:</span>
+          <span class="status-value" id="container-id">-</span>
+        </div>
+      </div>
+
+      <div class="instructions">
+        <strong>✨ How to Test:</strong><br />
+        1. Open the chat widget (bottom-right corner)<br />
+        2. Watch the state indicators above update<br />
+        3. Close the widget and see the state change<br />
+        4. Open browser DevTools and inspect the
+        <code>#cipher-row-widget</code> element
+      </div>
+
+      <div
+        class="instructions"
+        style="margin-top: 15px; border-color: #28a745; background: #d4edda"
+      >
+        <strong>🎯 Expected Behavior:</strong><br />
+        • <strong>When Open:</strong> <code>cipher-row-open</code> class,
+        <code>data-cr-state="open"</code><br />
+        • <strong>When Closed:</strong> <code>cipher-row-hidden</code> class,
+        <code>data-cr-state="hidden"</code>
+      </div>
+    </div>
+
+    <!-- Cipher & Row Widget Configuration -->
+    <script>
+      window.CipherRowConfig = {
+        clientId: "3e4eb378-9ac4-4a58-ab03-fefe994cf704",
+        botId: "2001",
+        apiKey: "sk_live_",
+        primaryColor: "#667eea",
+        greeting: "Hi! Test the visibility state system!",
+        position: "bottom-right",
+      };
+    </script>
+
+    <!-- Widget Script -->
+    <script type="module" src="./widget-new.js"></script>
+
+    <!-- Initialize Widget -->
+    <script type="module">
+      window.addEventListener("load", function () {
+        if (window.CRWidget) {
+          CRWidget.init();
+
+          // Start monitoring widget state
+          setTimeout(() => {
+            monitorWidgetState();
+          }, 500);
+        }
+      });
+
+      function monitorWidgetState() {
+        const widgetContainer = document.getElementById("cipher-row-widget");
+        const cssClassEl = document.getElementById("css-class");
+        const dataAttrEl = document.getElementById("data-attr");
+        const containerIdEl = document.getElementById("container-id");
+
+        if (!widgetContainer) {
+          cssClassEl.textContent = "Widget not found";
+          return;
+        }
+
+        containerIdEl.textContent = "#cipher-row-widget";
+
+        // Update state every 100ms
+        setInterval(() => {
+          const classes = widgetContainer.className;
+          const dataState = widgetContainer.getAttribute("data-cr-state");
+
+          if (classes.includes("cipher-row-open")) {
+            cssClassEl.textContent = "cipher-row-open";
+            cssClassEl.style.background = "#d4edda";
+            cssClassEl.style.color = "#28a745";
+          } else if (classes.includes("cipher-row-hidden")) {
+            cssClassEl.textContent = "cipher-row-hidden";
+            cssClassEl.style.background = "#f8d7da";
+            cssClassEl.style.color = "#dc3545";
+          } else {
+            cssClassEl.textContent = "none";
+            cssClassEl.style.background = "#e0e7ff";
+            cssClassEl.style.color = "#667eea";
+          }
+
+          if (dataState) {
+            dataAttrEl.textContent = dataState;
+            dataAttrEl.style.background =
+              dataState === "open" ? "#d4edda" : "#f8d7da";
+            dataAttrEl.style.color =
+              dataState === "open" ? "#28a745" : "#dc3545";
+          } else {
+            dataAttrEl.textContent = "not set";
+            dataAttrEl.style.background = "#e0e7ff";
+            dataAttrEl.style.color = "#667eea";
+          }
+        }, 100);
+
+        console.log("✅ State monitoring started");
+      }
+    </script>
+  </body>
+</html>
