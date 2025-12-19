@@ -38,7 +38,7 @@ export class WidgetAPI {
       {
         method: "POST",
         headers: {
-          "Accept": "application/json",
+          Accept: "application/json",
           "Content-Type": "application/json",
           "X-Api-Key": this.apiKey,
         },
@@ -87,9 +87,9 @@ export class WidgetAPI {
     fetch("https://cr-engine.jnowlan21.workers.dev/api/support-bot/query", {
       method: "POST",
       headers: {
-        "Accept": "application/json",
+        Accept: "application/json",
         "Content-Type": "application/json",
-        "X-Api-Key": this.apiKey,
+        "x-api-key": this.apiKey,
       },
       body: JSON.stringify({
         client_id: this.clientId,
