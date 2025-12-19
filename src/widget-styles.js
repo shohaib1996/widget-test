@@ -42,6 +42,11 @@ export const STYLES = `
     width: 360px;
     max-width: calc(100vw - 40px);
     font-size: 14px;
+    pointer-events: none; /* Make wrapper transparent to clicks */
+  }
+
+  .wrapper > * {
+    pointer-events: auto; /* Re-enable clicks on children (bubble and chat window) */
   }
 
   .bubble {

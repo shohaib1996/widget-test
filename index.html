@@ -101,6 +101,65 @@
           font-size: 16px;
         }
       }
+
+      /* Test button styles */
+      .test-click-area {
+        position: fixed;
+        bottom: 200px;
+        right: 20px;
+        z-index: 2147483646; /* Just below widget */
+        pointer-events: auto;
+      }
+
+      .test-button {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+        color: white;
+        border: none;
+        padding: 20px 40px;
+        border-radius: 50px;
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(238, 90, 111, 0.5);
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .test-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 25px rgba(238, 90, 111, 0.7);
+      }
+
+      .test-button.clicked {
+        background: linear-gradient(135deg, #4caf50, #45a049);
+        animation: pulse 0.3s;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      .click-count {
+        position: fixed;
+        bottom: 150px;
+        right: 20px;
+        background: white;
+        color: #333;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-weight: 700;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        z-index: 2147483646;
+        font-size: 16px;
+      }
     </style>
   </head>
   <body>
@@ -131,16 +190,40 @@
       </main>
     </div>
 
+    <!-- Test Button (underneath widget area) -->
+    <div class="click-count" id="clickCount">Clicks: 0</div>
+    <div class="test-click-area">
+      <button class="test-button" id="testBtn" onclick="testClick()">
+        <span>🎯</span>
+        <span>Click Me to Test!</span>
+      </button>
+    </div>
+
     <!-- Cipher & Row Widget Configuration -->
     <script>
       window.CipherRowConfig = {
         clientId: "33400d06-8aeb-4866-87de-72fd243aa20a",
         botId: "2001",
-        apiKey: "pk_live_WdW4Bw2YoAL1TYvOvylGPq8BViVV2Et",
+        apiKey: "pk_live_h160kkfBTMzDxreit522dLrigLqdBaCe",
         primaryColor: "#925FF0",
         greeting: "Hi! How can we help you today?",
         position: "bottom-right",
       };
+
+      // Test button functionality
+      let clickCounter = 0;
+      function testClick() {
+        clickCounter++;
+        document.getElementById("clickCount").textContent =
+          "Clicks: " + clickCounter;
+        const btn = document.getElementById("testBtn");
+        btn.classList.add("clicked");
+        console.log("✅ Test button clicked! Count:", clickCounter);
+
+        setTimeout(() => {
+          btn.classList.remove("clicked");
+        }, 300);
+      }
     </script>
 
     <!-- Widget Script -->
