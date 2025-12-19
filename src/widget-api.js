@@ -16,10 +16,10 @@ export class WidgetAPI {
   createPayload(userMessage, sessionId) {
     return {
       client_id: this.clientId,
-      bot_id: this.botId,
-      session_id: sessionId,
       user_message: userMessage,
+      session_id: sessionId,
       page_url: window.location.href,
+      bot_id: this.botId,
     };
   }
 
@@ -38,9 +38,9 @@ export class WidgetAPI {
       {
         method: "POST",
         headers: {
-          accept: "application/json",
+          "Accept": "application/json",
           "Content-Type": "application/json",
-          "x-api-key": this.apiKey,
+          "X-Api-Key": this.apiKey,
         },
         body: JSON.stringify(payload),
       }
@@ -56,12 +56,15 @@ export class WidgetAPI {
     }
 
     const data = await res.json();
+    console.log("API Response:", data);
+
     const botText =
       data.bot_answer ||
       data.reply ||
       (data.messages && data.messages[0]?.text) ||
       "Sorry, I didn't get that.";
 
+    console.log("Extracted bot text:", botText);
     return botText;
   }
 
@@ -84,16 +87,16 @@ export class WidgetAPI {
     fetch("https://cr-engine.jnowlan21.workers.dev/api/support-bot/query", {
       method: "POST",
       headers: {
-        accept: "application/json",
+        "Accept": "application/json",
         "Content-Type": "application/json",
-        "x-api-key": this.apiKey,
+        "X-Api-Key": this.apiKey,
       },
       body: JSON.stringify({
         client_id: this.clientId,
-        bot_id: this.botId,
-        session_id: sessionId,
         user_message: "ping",
+        session_id: sessionId,
         page_url: window.location.href,
+        bot_id: this.botId,
       }),
     })
       .then(async (response) => {
