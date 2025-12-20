@@ -13,6 +13,8 @@ export class WidgetUI {
       config.greetingMessage || "Hi there! How can I help today?";
     this.primaryColor = config.primaryColor || "#8A06E6";
     this.position = config.position || "bottom-right";
+    this.offsetX = config.offsetX !== undefined ? config.offsetX : 20;
+    this.offsetY = config.offsetY !== undefined ? config.offsetY : 20;
   }
 
   /**
@@ -89,9 +91,15 @@ export class WidgetUI {
       }
     `;
 
+    // Apply position and offset
     if (this.position === "bottom-left") {
       wrapper.style.right = "auto";
-      wrapper.style.left = "20px";
+      wrapper.style.left = `${this.offsetX}px`;
+      wrapper.style.bottom = `${this.offsetY}px`;
+    } else {
+      // bottom-right (default)
+      wrapper.style.right = `${this.offsetX}px`;
+      wrapper.style.bottom = `${this.offsetY}px`;
     }
   }
 

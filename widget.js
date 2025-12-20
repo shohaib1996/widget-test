@@ -28,6 +28,8 @@ import { WidgetAPI } from "./src/widget-api.js";
       this.primaryColor = "#8A06E6";
       this.greetingMessage = "Hi there! How can I help today?";
       this.position = "bottom-right";
+      this.offsetX = 20;
+      this.offsetY = 20;
     }
 
     init(opts = {}) {
@@ -67,6 +69,12 @@ import { WidgetAPI } from "./src/widget-api.js";
       }
       if (globalConfig.position) {
         this.position = globalConfig.position;
+      }
+      if (globalConfig.offsetX !== undefined) {
+        this.offsetX = globalConfig.offsetX;
+      }
+      if (globalConfig.offsetY !== undefined) {
+        this.offsetY = globalConfig.offsetY;
       }
 
       console.log("Widget initialized with config:", {
@@ -119,6 +127,8 @@ import { WidgetAPI } from "./src/widget-api.js";
         greetingMessage: this.greetingMessage,
         primaryColor: this.primaryColor,
         position: this.position,
+        offsetX: this.offsetX,
+        offsetY: this.offsetY,
       });
 
       this.ui.renderShell();

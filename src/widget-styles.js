@@ -43,6 +43,11 @@ export const STYLES = `
     max-width: calc(100vw - 40px);
     font-size: 14px;
     pointer-events: none; /* Make wrapper transparent to clicks */
+
+    /* Safe area support for iOS notches and Android navigation */
+    bottom: max(20px, env(safe-area-inset-bottom));
+    right: max(20px, env(safe-area-inset-right));
+    left: auto;
   }
 
   .wrapper > * {
@@ -68,7 +73,7 @@ export const STYLES = `
   .chat-window {
     width: 100%;
     height: 520px;
-    max-height: 520px;
+    max-height: min(520px, calc(100vh - 100px));
     background: var(--bg-window);
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
@@ -262,8 +267,58 @@ export const STYLES = `
     box-shadow: 0 1px 3px rgba(138,6,230,0.2);
   }
 
+  /* Mobile styles with safe area support */
   @media (max-width:420px) {
-    .wrapper { width: calc(100vw - 28px); right:14px; bottom:14px; }
-    .chat-window { max-height: 70vh; }
+    .wrapper {
+      width: calc(100vw - 28px);
+      right: max(14px, env(safe-area-inset-right));
+      bottom: max(14px, env(safe-area-inset-bottom));
+      max-width: calc(100vw - max(28px, env(safe-area-inset-left) + env(safe-area-inset-right)));
+    }
+
+    .chat-window {
+      /* Use dvh (dynamic viewport height) for better mobile support */
+      /* Falls back to vh for browsers that don't support dvh */
+      max-height: 70vh;
+      max-height: calc(70dvh - env(safe-area-inset-bottom));
+      height: auto;
+      border-radius: 14px 14px 0 0;
+    }
+
+    /* Ensure input area stays above keyboard on mobile */
+    .input-area {
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+    }
+
+    /* Adjust bubble for safe areas */
+    .bubble {
+      width: 56px;
+      height: 56px;
+    }
+
+    /* Ensure messages area accounts for safe areas */
+    .messages {
+      padding-bottom: max(12px, calc(env(safe-area-inset-bottom) / 2));
+    }
+  }
+
+  /* Landscape mode on mobile */
+  @media (max-width: 844px) and (max-height: 420px) and (orientation: landscape) {
+    .chat-window {
+      max-height: calc(85dvh - env(safe-area-inset-bottom));
+      max-height: calc(85vh - env(safe-area-inset-bottom));
+    }
+
+    .wrapper {
+      bottom: max(10px, env(safe-area-inset-bottom));
+      right: max(10px, env(safe-area-inset-right));
+    }
+  }
+
+  /* Support for viewport resize when keyboard appears */
+  @supports (height: 100dvh) {
+    .chat-window {
+      max-height: min(520px, calc(100dvh - 100px));
+    }
   }
 `;
