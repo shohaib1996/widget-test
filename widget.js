@@ -25,6 +25,7 @@ import { WidgetAPI } from "./src/widget-api.js";
       this.greeted = false;
       this.warmupPingSent = false;
       this.initialized = false;
+      this.botName = "Support Assistant";
       this.primaryColor = "#8A06E6";
       this.greetingMessage = "Hi there! How can I help today?";
       this.position = "bottom-right";
@@ -61,6 +62,9 @@ import { WidgetAPI } from "./src/widget-api.js";
       this.botId = globalConfig.botId || null;
 
       // Process customization
+      if (globalConfig.botName && globalConfig.botName.trim()) {
+        this.botName = globalConfig.botName;
+      }
       if (globalConfig.primaryColor) {
         this.primaryColor = globalConfig.primaryColor;
       }
@@ -124,6 +128,7 @@ import { WidgetAPI } from "./src/widget-api.js";
       });
 
       this.ui = new WidgetUI(this.shadow, {
+        botName: this.botName,
         greetingMessage: this.greetingMessage,
         primaryColor: this.primaryColor,
         position: this.position,

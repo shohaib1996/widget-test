@@ -9,6 +9,7 @@ export class WidgetUI {
   constructor(shadow, config = {}) {
     this.shadow = shadow;
     this.elements = {};
+    this.botName = config.botName || "Support Assistant";
     this.greetingMessage =
       config.greetingMessage || "Hi there! How can I help today?";
     this.primaryColor = config.primaryColor || "#8A06E6";
@@ -31,7 +32,7 @@ export class WidgetUI {
     inner += '    <div class="header-left">';
     inner +=
       '      <div class="header-icon"><img src="https://cdn.cipherandrow.com/images/Text.png" alt="Icon" style="width:24px; height:24px; object-fit:contain;" /></div>';
-    inner += '      <div class="title">Support Assistant</div>';
+    inner += `      <div class="title">${this._escape(this.botName)}</div>`;
     inner += "    </div>";
     inner += '    <div style="display:flex; gap:10px; align-items:center;">';
     inner += '      <div class="status-dot" title="Active"></div>';
