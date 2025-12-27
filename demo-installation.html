@@ -78,13 +78,16 @@
         clientId: "33400d06-8aeb-4866-87de-72fd243aa20a",
         botId: "2001",
         apiKey: "pk_live_EFHKv4UEZoqt9WL1X25PiP9VkSDZzR",
-        primaryColor: "#925FF0",
+        primaryColor: "#0077b6",
         greeting: "Hi! How can we help you today?",
         position: "bottom-right",
+        offsetX: 20,
+        offsetY: 20,
+        blurIntensity: 40,
       };
     </script>
     <!-- Widget Script -->
-    <script type="module" src="https://cdn.cipherandrow.com/widget.js"></script>
+    <script type="module" src="./widget-backup.js"></script>
     <!-- Initialize Widget -->
     <script>
       window.addEventListener("load", function () {
@@ -95,27 +98,27 @@
       });
 
       // Add test button to manually trigger init
-      window.addEventListener("load", function () {
-        const container = document.querySelector(".container");
-        const testDiv = document.createElement("div");
-        testDiv.innerHTML = `
-          <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
-            <strong>🧪 Duplication Test:</strong><br>
-            <button onclick="testInit()" style="margin-top: 10px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">
-              Call CRWidget.init() Again
-            </button>
-            <p style="margin-top: 10px; font-size: 12px; color: #666;">
-              Check the console to see the duplication prevention in action!
-            </p>
-          </div>
-        `;
-        container.appendChild(testDiv);
-      });
+      // window.addEventListener("load", function () {
+      // const container = document.querySelector(".container");
+      // const testDiv = document.createElement("div");
+      // testDiv.innerHTML = `
+      //   <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+      //     <strong>🧪 Duplication Test:</strong><br>
+      //     <button onclick="testInit()" style="margin-top: 10px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">
+      //       Call CRWidget.init() Again
+      //     </button>
+      //     <p style="margin-top: 10px; font-size: 12px; color: #666;">
+      //       Check the console to see the duplication prevention in action!
+      //     </p>
+      //   </div>
+      // `;
+      // container.appendChild(testDiv);
+      // });
 
-      function testInit() {
-        console.log("\n=== Manual init() call from button ===");
-        CRWidget.init();
-      }
+      // function testInit() {
+      //   console.log("\n=== Manual init() call from button ===");
+      //   CRWidget.init();
+      // }
     </script>
   </body>
 </html>

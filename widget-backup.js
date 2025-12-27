@@ -3,9 +3,9 @@
  * Orchestrates UI, API, and state management
  */
 
-import { STYLES } from "./widget-styles.js";
-import { WidgetUI } from "./widget-ui.js";
-import { WidgetAPI } from "./widget-api.js";
+import { STYLES } from "./src-backup/widget-styles.js";
+import { WidgetUI } from "./src-backup/widget-ui.js";
+import { WidgetAPI } from "./src-backup/widget-api.js";
 
 (function () {
   class CRWidget {
@@ -25,9 +25,13 @@ import { WidgetAPI } from "./widget-api.js";
       this.greeted = false;
       this.warmupPingSent = false;
       this.initialized = false;
+      this.botName = "Support Assistant";
       this.primaryColor = "#8A06E6";
       this.greetingMessage = "Hi there! How can I help today?";
       this.position = "bottom-right";
+      this.offsetX = 20;
+      this.offsetY = 20;
+      this.blurIntensity = 50; // Default blur intensity (0-100)
     }
 
     init(opts = {}) {
@@ -59,6 +63,9 @@ import { WidgetAPI } from "./widget-api.js";
       this.botId = globalConfig.botId || null;
 
       // Process customization
+      if (globalConfig.botName && globalConfig.botName.trim()) {
+        this.botName = globalConfig.botName;
+      }
       if (globalConfig.primaryColor) {
         this.primaryColor = globalConfig.primaryColor;
       }
@@ -68,12 +75,23 @@ import { WidgetAPI } from "./widget-api.js";
       if (globalConfig.position) {
         this.position = globalConfig.position;
       }
+      if (globalConfig.offsetX !== undefined) {
+        this.offsetX = globalConfig.offsetX;
+      }
+      if (globalConfig.offsetY !== undefined) {
+        this.offsetY = globalConfig.offsetY;
+      }
+      if (globalConfig.blurIntensity !== undefined) {
+        // Clamp value between 0 and 100
+        this.blurIntensity = Math.max(0, Math.min(100, globalConfig.blurIntensity));
+      }
 
       console.log("Widget initialized with config:", {
         clientId: this.clientId,
         botId: this.botId,
         primaryColor: this.primaryColor,
         position: this.position,
+        blurIntensity: this.blurIntensity,
       });
 
       if (!this.clientId && !this.apiKey) {
@@ -116,14 +134,21 @@ import { WidgetAPI } from "./widget-api.js";
       });
 
       this.ui = new WidgetUI(this.shadow, {
+        botName: this.botName,
         greetingMessage: this.greetingMessage,
         primaryColor: this.primaryColor,
         position: this.position,
+        offsetX: this.offsetX,
+        offsetY: this.offsetY,
+        blurIntensity: this.blurIntensity,
       });
 
       this.ui.renderShell();
       this.ui.applyCustomization(this.customStyle);
       this._attachListeners();
+
+      // Set initial visibility state (hidden/closed)
+      this._setVisibilityState(false);
 
       // Mark as initialized
       this.initialized = true;
@@ -159,10 +184,29 @@ import { WidgetAPI } from "./widget-api.js";
       );
     }
 
+    _setVisibilityState(isOpen) {
+      if (!this.container) return;
+
+      if (isOpen) {
+        // On open: add cipher-row-open, remove cipher-row-hidden
+        this.container.classList.add("cipher-row-open");
+        this.container.classList.remove("cipher-row-hidden");
+        this.container.setAttribute("data-cr-state", "open");
+      } else {
+        // On minimize/close: add cipher-row-hidden, remove cipher-row-open
+        this.container.classList.add("cipher-row-hidden");
+        this.container.classList.remove("cipher-row-open");
+        this.container.setAttribute("data-cr-state", "hidden");
+      }
+    }
+
     _attachListeners() {
       const toggle = () => {
         this.isOpen = !this.isOpen;
         this.ui.toggleWindow(this.isOpen);
+
+        // Set visibility state (classes and data attribute)
+        this._setVisibilityState(this.isOpen);
 
         if (this.isOpen) {
           setTimeout(() => this.ui.focusInput(), 120);
@@ -175,7 +219,7 @@ import { WidgetAPI } from "./widget-api.js";
 
           if (!this.greeted) {
             console.log("Showing greeting message:", this.greetingMessage);
-            this.ui.showGreeting();
+            this.ui.showGreetingWithTyping();
             this.greeted = true;
           }
         }
@@ -200,6 +244,8 @@ import { WidgetAPI } from "./widget-api.js";
         if (e.key === "Escape" && this.isOpen) {
           this.isOpen = false;
           this.ui.toggleWindow(false);
+          // Set visibility state when closing with Escape
+          this._setVisibilityState(false);
         }
       });
     }

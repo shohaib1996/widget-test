@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blur Intensity Debug - Cipher & Row</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+      .container {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 28px;
+      }
+      .debug-info {
+        background: #f0f4ff;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+        margin-bottom: 20px;
+        font-family: monospace;
+        font-size: 14px;
+      }
+      .debug-info div {
+        padding: 5px 0;
+        border-bottom: 1px solid #e0e7ff;
+      }
+      .debug-info div:last-child {
+        border-bottom: none;
+      }
+      .label {
+        font-weight: bold;
+        color: #667eea;
+        display: inline-block;
+        width: 200px;
+      }
+      .value {
+        color: #333;
+      }
+      .instructions {
+        background: #fff3cd;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #ffc107;
+        margin-top: 20px;
+      }
+      button {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 10px;
+      }
+      button:hover {
+        background: #5568d3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Blur Intensity Debug Tool</h1>
+
+      <div class="debug-info" id="debug-info">
+        <div><span class="label">Loading...</span></div>
+      </div>
+
+      <div class="instructions">
+        <strong>📋 Instructions:</strong><br />
+        1. This page will show you exactly what blur values are being applied<br />
+        2. Open the widget and check the computed styles<br />
+        3. Check browser support for backdrop-filter<br />
+        4. Compare with working test files
+      </div>
+
+      <button onclick="inspectWidget()">🔎 Inspect Widget Styles</button>
+      <button onclick="location.reload(true)">🔄 Hard Reload</button>
+    </div>
+
+    <!-- Cipher & Row Widget Configuration -->
+    <script>
+      window.CipherRowConfig = {
+        clientId: "33400d06-8aeb-4866-87de-72fd243aa20a",
+        botId: "2001",
+        apiKey: "pk_live_EFHKv4UEZoqt9WL1X25PiP9VkSDZzR",
+        primaryColor: "#0077b6",
+        greeting: "Hi! How can we help you today?",
+        position: "bottom-right",
+        botName: "jala",
+        offsetX: 20,
+        offsetY: 20,
+        blurIntensity: 100,
+      };
+    </script>
+
+    <!-- Widget Script -->
+    <script type="module" src="./widget-backup.js"></script>
+
+    <!-- Initialize Widget -->
+    <script>
+      window.addEventListener("load", function () {
+        if (window.CRWidget) {
+          console.log("=== Widget Init ===");
+          CRWidget.init();
+
+          setTimeout(() => {
+            displayDebugInfo();
+          }, 1000);
+        }
+      });
+
+      function displayDebugInfo() {
+        const debugDiv = document.getElementById("debug-info");
+        const config = window.CipherRowConfig;
+
+        // Check browser support
+        const supportsBackdropFilter =
+          CSS.supports("backdrop-filter", "blur(10px)") ||
+          CSS.supports("-webkit-backdrop-filter", "blur(10px)");
+
+        // Get widget container
+        const widgetContainer = document.getElementById("cipher-row-widget");
+        let shadowRoot = null;
+        let customStyle = null;
+
+        if (widgetContainer && widgetContainer.shadowRoot) {
+          shadowRoot = widgetContainer.shadowRoot;
+          // Find custom style element (second style tag)
+          const styles = shadowRoot.querySelectorAll("style");
+          if (styles.length > 1) {
+            customStyle = styles[1].textContent;
+          }
+        }
+
+        // Calculate expected blur values
+        const blurIntensity = config.blurIntensity || 50;
+        const blurMultiplier = blurIntensity / 50;
+        const bubbleBlur = Math.round(24 * blurMultiplier);
+        const headerBlur = Math.round(32 * blurMultiplier);
+        const botBubbleBlur = Math.round(80 * blurMultiplier);
+        const inputBlur = Math.round(40 * blurMultiplier);
+
+        let html = "";
+        html += `<div><span class="label">Config blurIntensity:</span><span class="value">${blurIntensity}</span></div>`;
+        html += `<div><span class="label">Blur Multiplier:</span><span class="value">${blurMultiplier.toFixed(
+          2
+        )}</span></div>`;
+        html += `<div><span class="label">Expected Bubble Blur:</span><span class="value">${bubbleBlur}px</span></div>`;
+        html += `<div><span class="label">Expected Header Blur:</span><span class="value">${headerBlur}px</span></div>`;
+        html += `<div><span class="label">Expected Bot Bubble Blur:</span><span class="value">${botBubbleBlur}px</span></div>`;
+        html += `<div><span class="label">Expected Input Blur:</span><span class="value">${inputBlur}px</span></div>`;
+        html += `<div><span class="label">Browser Supports Blur:</span><span class="value" style="color: ${
+          supportsBackdropFilter ? "green" : "red"
+        }">${supportsBackdropFilter ? "✅ YES" : "❌ NO"}</span></div>`;
+        html += `<div><span class="label">Widget Container:</span><span class="value">${
+          widgetContainer ? "✅ Found" : "❌ Not Found"
+        }</span></div>`;
+        html += `<div><span class="label">Shadow Root:</span><span class="value">${
+          shadowRoot ? "✅ Found" : "❌ Not Found"
+        }</span></div>`;
+
+        if (customStyle) {
+          const hasBubbleBlur = customStyle.includes(`blur(${bubbleBlur}px)`);
+          const hasHeaderBlur = customStyle.includes(`blur(${headerBlur}px)`);
+          html += `<div><span class="label">Bubble Blur Applied:</span><span class="value" style="color: ${
+            hasBubbleBlur ? "green" : "red"
+          }">${hasBubbleBlur ? "✅ YES" : "❌ NO"}</span></div>`;
+          html += `<div><span class="label">Header Blur Applied:</span><span class="value" style="color: ${
+            hasHeaderBlur ? "green" : "red"
+          }">${hasHeaderBlur ? "✅ YES" : "❌ NO"}</span></div>`;
+        }
+
+        debugDiv.innerHTML = html;
+
+        console.log("=== Debug Info ===");
+        console.log("Config:", config);
+        console.log("Blur Intensity:", blurIntensity);
+        console.log("Expected blurs:", {
+          bubbleBlur,
+          headerBlur,
+          botBubbleBlur,
+          inputBlur,
+        });
+        console.log(
+          "Browser supports backdrop-filter:",
+          supportsBackdropFilter
+        );
+        if (customStyle) {
+          console.log("Custom styles applied:", customStyle);
+        }
+      }
+
+      function inspectWidget() {
+        const widgetContainer = document.getElementById("cipher-row-widget");
+        if (!widgetContainer || !widgetContainer.shadowRoot) {
+          alert("Widget not found or not initialized!");
+          return;
+        }
+
+        const shadowRoot = widgetContainer.shadowRoot;
+        const bubble = shadowRoot.querySelector(".bubble");
+        const chatWindow = shadowRoot.querySelector(".chat-window");
+        const header = shadowRoot.querySelector(".header");
+
+        console.log("=== Widget Element Inspection ===");
+
+        if (bubble) {
+          const styles = window.getComputedStyle(bubble);
+          console.log("Bubble backdrop-filter:", styles.backdropFilter);
+          console.log(
+            "Bubble -webkit-backdrop-filter:",
+            styles.webkitBackdropFilter
+          );
+          console.log("Bubble background:", styles.background);
+        }
+
+        if (header) {
+          const styles = window.getComputedStyle(header);
+          console.log("Header backdrop-filter:", styles.backdropFilter);
+          console.log(
+            "Header -webkit-backdrop-filter:",
+            styles.webkitBackdropFilter
+          );
+          console.log("Header background:", styles.background);
+        }
+
+        alert("Check the browser console for detailed style information!");
+      }
+    </script>
+  </body>
+</html>
