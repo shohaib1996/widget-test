@@ -188,12 +188,25 @@ export class WidgetUI {
         -webkit-backdrop-filter: ${inputBlur > 0 ? `blur(${inputBlur}px)` : 'none'} !important;
         border: none !important;
         border-radius: 18px !important;
-        box-shadow: ${chatWindowBgOpacity > 0 ? '0 12px 48px rgba(0, 0, 0, 0.2)' : 'none'} !important;
-        padding: 20px !important;
+        box-shadow: ${chatWindowBgOpacity > 0 ? '0 8px 24px rgba(0, 0, 0, 0.08)' : 'none'} !important;
+        padding: 0 !important;
         display: flex;
         flex-direction: column;
         flex: 1;
         overflow: hidden;
+      }
+
+      .messages {
+        padding: 20px 20px 0 20px !important;
+      }
+
+      .input-area {
+        padding: 0 20px !important;
+        margin-top: 16px !important;
+      }
+
+      .footer {
+        padding: 16px 20px 20px 20px !important;
       }
 
       .input-pill {

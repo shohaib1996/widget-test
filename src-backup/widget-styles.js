@@ -306,8 +306,8 @@ export const STYLES = `
     color: rgba(255, 255, 255, 0.98);
     box-shadow:
       0 0 0 1px rgba(255, 255, 255, 0.2) inset,
-      0 8px 32px rgba(0, 0, 0, 0.3),
-      0 2px 8px rgba(0, 0, 0, 0.15);
+      0 2px 8px rgba(0, 0, 0, 0.06),
+      0 1px 2px rgba(0, 0, 0, 0.04);
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   }
 
@@ -320,8 +320,8 @@ export const STYLES = `
     color: rgba(255, 255, 255, 0.98);
     box-shadow:
       0 0 0 1px rgba(255, 255, 255, 0.15) inset,
-      0 8px 32px rgba(0, 0, 0, 0.15),
-      0 4px 12px rgba(0, 0, 0, 0.1);
+      0 2px 8px rgba(0, 0, 0, 0.05),
+      0 1px 2px rgba(0, 0, 0, 0.03);
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   }
 
