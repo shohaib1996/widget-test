@@ -183,7 +183,7 @@ export class WidgetUI {
       }
 
       .chat-content-blur {
-        background: rgba(0, 0, 0, ${chatWindowBgOpacity}) !important;
+        background: rgba(255, 255, 255, ${chatWindowBgOpacity * 0.3}) !important;
         backdrop-filter: ${inputBlur > 0 ? `blur(${inputBlur}px)` : 'none'} !important;
         -webkit-backdrop-filter: ${inputBlur > 0 ? `blur(${inputBlur}px)` : 'none'} !important;
         border: none !important;
@@ -194,6 +194,13 @@ export class WidgetUI {
         flex-direction: column;
         flex: 1;
         overflow: hidden;
+      }
+
+      /* Fallback for browsers without backdrop-filter support */
+      @supports not (backdrop-filter: blur(1px)) {
+        .chat-content-blur {
+          background: rgba(255, 255, 255, 0.92) !important;
+        }
       }
 
       .messages {

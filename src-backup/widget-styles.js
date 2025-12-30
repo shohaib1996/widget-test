@@ -598,16 +598,41 @@ export const STYLES = `
       background: transparent;
     }
     .header {
-      background: rgba(20, 20, 20, 0.85);
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    .header .title {
+      color: rgba(0, 0, 0, 0.87);
+      text-shadow: none;
     }
     .bubble-content.bot {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.85);
+      color: rgba(0, 0, 0, 0.87);
+      text-shadow: none;
+      border: 1px solid rgba(0, 0, 0, 0.08);
     }
     .bubble-content.user {
       background: var(--primary);
     }
     .input-pill {
-      background: rgba(20, 20, 20, 0.85);
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+    }
+    .input-pill input {
+      color: rgba(0, 0, 0, 0.87);
+      text-shadow: none;
+    }
+    .input-pill input::placeholder {
+      color: rgba(0, 0, 0, 0.45);
+      text-shadow: none;
+    }
+    .footer {
+      color: rgba(0, 0, 0, 0.6);
+      text-shadow: none;
+    }
+    .footer a {
+      color: var(--primary);
+      text-shadow: none;
     }
   }
 `;
