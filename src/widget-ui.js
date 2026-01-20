@@ -5,6 +5,76 @@
 
 import { ICONS } from "./widget-icons.js";
 
+/**
+ * Helper function to render message text with clickable links
+ * Handles both HTML <a> tags and plain URLs
+ */
+function renderMessageText(text, primaryColor) {
+  // First, extract links from HTML <a> tags
+  const htmlLinkPattern = /<a\s+[^>]*href=["']?([^"'\s>]+)["']?[^>]*>([^<]*)<\/a>/gi;
+
+  // Store extracted links and replace with placeholder tokens
+  const links = [];
+  let processedText = text.replace(htmlLinkPattern, (_, href, linkText) => {
+    // Clean the href - remove trailing quotes or other junk
+    const cleanHref = href.replace(/["']+$/, '');
+    links.push({ href: cleanHref, text: linkText || cleanHref });
+    return `\u0000HTMLLINK${links.length - 1}\u0000`;
+  });
+
+  // Remove any remaining HTML tags (cleanup)
+  processedText = processedText.replace(/<[^>]+>/g, '');
+
+  // Now handle plain URLs (http, https, www, and domain.com/path patterns) that aren't inside placeholders
+  const urlPattern = /(https?:\/\/[^\s<\u0000"']+|www\.[^\s<\u0000"']+|[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,}(?:[-a-zA-Z0-9._~:/?#\[\]@!$&'()*+,;=%]*[a-zA-Z0-9/])?)/gi;
+  processedText = processedText.replace(urlPattern, (match) => {
+    // Clean up any trailing punctuation
+    const cleaned = match.replace(/[.,;:!?)]+$/, '');
+    const trailing = match.slice(cleaned.length);
+    links.push({ href: cleaned, text: cleaned });
+    return `\u0000HTMLLINK${links.length - 1}\u0000${trailing}`;
+  });
+
+  // Split by placeholder pattern and build HTML
+  const parts = processedText.split(/\u0000/);
+  let html = '';
+
+  for (const part of parts) {
+    const linkMatch = part.match(/^HTMLLINK(\d+)$/);
+    if (linkMatch) {
+      const linkData = links[parseInt(linkMatch[1])];
+      if (linkData) {
+        const href = linkData.href.startsWith("http") ? linkData.href : `https://${linkData.href}`;
+        // Escape the link text but keep the href as is
+        const escapedText = escapeHtml(linkData.text);
+        html += `<a href="${href}" target="_blank" rel="noopener noreferrer" style="color: ${primaryColor}; text-decoration: underline;">${escapedText}</a>`;
+      }
+    } else if (part) {
+      html += escapeHtml(part);
+    }
+  }
+
+  return html;
+}
+
+/**
+ * Escape HTML special characters
+ */
+function escapeHtml(s) {
+  if (!s) return "";
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/**
+ * Check if text contains HTML tags
+ */
+function containsHtml(text) {
+  return /<[a-z][\s\S]*>/i.test(text);
+}
+
 export class WidgetUI {
   constructor(shadow, config = {}) {
     this.shadow = shadow;
@@ -221,7 +291,17 @@ export class WidgetUI {
     this.elements.messages.appendChild(row);
     this._maybeAutoScroll();
 
-    if (opts.animated) {
+    // Check if text contains HTML (like <a> tags) - skip typing animation
+    const hasHtml = containsHtml(text);
+
+    if (hasHtml) {
+      // Skip typing animation for HTML content, render with links
+      this.showTyping(false);
+      const span = content.querySelector(".bot-text");
+      if (span) {
+        span.innerHTML = renderMessageText(text, this.primaryColor);
+      }
+    } else if (opts.animated) {
       this.showTyping(false);
       const span = content.querySelector(".bot-text");
       const speed = text && text.length > 200 ? 8 : 10;
